@@ -77,3 +77,43 @@ sort(cooks.distance(mod1))
 #Distribution of the residuals
 shapiro.test(residuals(mod1))
 
+#confidence intervals
+confint(mod11)
+
+# Compare models using R square 
+c(summary(mod1)$adj.r.squared, summary(mod11)$adj.r.squared)
+
+# Compare models using AIC y BIC - lowest is better
+AIC(mod1, mod11)
+BIC(mod1, mod11)
+
+#Divide the data
+set.seed(123) 
+n_total <- nrow(mixedDf)
+#Training 80%
+train_size <- floor(0.8 * n_total)
+
+train_index <- sample(seq_len(n_total), size = train_size)
+
+train_data <- mixedDf[train_index, ]  #80% Training
+test_data  <- mixedDf[-train_index, ] #20% Testing
+
+#mod11 with train_data
+mod11_train <- lm(Lower_Unemployment_Rate ~ Inf_Secundaria_25_34 + 
+                    Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability + 
+                    Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+                    Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+                    Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 + 
+                    Upper_Activity_Rate_25_64 + Sex + Year, 
+                  data = train_data)
+
+#Confidence Interval
+pred_confidence <- predict(mod11_train, newdata = test_data, interval = "confidence")
+
+#Prediction Interval
+pred_prediction <- predict(mod11_train, newdata = test_data, interval = "prediction")
+
+#results 
+head(pred_confidence)
+head(pred_prediction)
+
