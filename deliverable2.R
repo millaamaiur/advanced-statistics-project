@@ -18,10 +18,12 @@ names(data2)
 
 #Mixing both datasets
 mixedDf <- inner_join(data1, data2, by = c("CCAA", "Sex", "Year"))
+
+#Remove NAs values
+mixedDf <- na.omit(mixedDf)
 summary(mixedDf)
 dim(mixedDf)
 
-# Mod1 using F1
 # Mod1 using F1
 mod1 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_64 + Inf_Secundaria_25_34 + 
              Inf_Secundaria_55_64 + Segunda_Etapa_25_64 + Segunda_Etapa_25_34 + 
@@ -56,9 +58,21 @@ mod11 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_34 +
 summary(mod11)
 plot(mod11,1)
 
+#Removing
+#summary(mod11)
+#Remove year: p value= 0.397919
+mod12 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_34 +
+              Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
+              Upper_Activity_Rate_25_64 + Sex, data = mixedDf)
+summary(mod12)
+
 #Distribution of the residuals
 shapiro.test(residuals(mod11))
-#Small p-value, then the residuals don't follow a normal distributio
+
+#Small p-value, then the residuals don't follow a normal distribution
 
 ######Checking for outliers######
 plot(mod1,1)
@@ -116,4 +130,5 @@ pred_prediction <- predict(mod11_train, newdata = test_data, interval = "predict
 #results 
 head(pred_confidence)
 head(pred_prediction)
+
 
