@@ -47,8 +47,8 @@ mod11 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_34 +
               Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
               Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
               Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
-              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 
-            Upper_Activity_Rate_25_64 + Sex + Year, data = mixedDf)
+              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
+              Upper_Activity_Rate_25_64 + Sex + Year, data = mixedDf)
 summary(mod11)
 plot(mod11,1)
 #Distribution of the residuals
