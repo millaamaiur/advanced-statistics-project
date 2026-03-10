@@ -68,19 +68,19 @@ mod12 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_34 +
 summary(mod12)
 
 #Distribution of the residuals
-shapiro.test(residuals(mod11))
+#shapiro.test(residuals(mod11))
 
 #Distribution of the residuals
-shapiro.test(residuals(mod11))
+shapiro.test(residuals(mod12))
 #Small p-value, then the residuals don't follow a normal distribution
 
 ######Checking for outliers######
-plot(mod1,1)
-stud_resids <- studres(mod1)
-plot ( mod1$fitted.values , stud_resids,
+plot(mod12,1)
+stud_resids <- studres(mod12)
+plot ( mod12$fitted.values , stud_resids,
        xlab ='Fitted', ylab ='Studentized Residuals')
 
-res_stud <- rstudent(mod1)
+res_stud <- rstudent(mod12)
 outliers <- which(abs(res_stud) > 3)
 # add horizontal line at 0
 abline (0 , 0)
@@ -90,17 +90,17 @@ sort(cooks.distance(mod1))
 
 
 #Distribution of the residuals
-shapiro.test(residuals(mod1))
+shapiro.test(residuals(mod12))
 
 #confidence intervals
-confint(mod11)
+confint(mod12)
 
 # Compare models using R square 
-c(summary(mod1)$adj.r.squared, summary(mod11)$adj.r.squared)
+c(summary(mod1)$adj.r.squared, summary(mod12)$adj.r.squared)
 
 # Compare models using AIC y BIC - lowest is better
-AIC(mod1, mod11)
-BIC(mod1, mod11)
+AIC(mod1, mod12)
+BIC(mod1, mod12)
 
 
 
