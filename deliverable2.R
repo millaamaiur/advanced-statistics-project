@@ -4,6 +4,7 @@ set.seed(123)
 library(tidyverse)
 library(dplyr)
 library(MASS)
+library(car)
 
 data1 <- read.csv("./dataset1.csv")
 data2 <- read.csv("./dataset2.csv")
@@ -116,8 +117,8 @@ plot(reducedModel2,1)
 plot(reducedModel2,5)
 
 # Compare models again by using AIC and BIC
-AIC(reduced_model, reducedModel2)
-BIC(reduced_model, reducedModel2)
+AIC(reducedModel, reducedModel2)
+BIC(reducedModel, reducedModel2)
 #Although the AIC slightly increased (~ 1 unit more), the BIC also slightly decreased (by ~ 3 units)
 #For our purpose, we will choose the model with less variables
 
@@ -151,35 +152,106 @@ BIC(reducedModel3, reducedModel4)
 #Finally, when deleting the Inf_Secundaria_25_64 predictor, both AIC and BIC increases drastically,
 #meaning that the reduced model isn't the most appropiate one. Then, we will take the reducedModel3
 #as our final model.
-finalModel <- reducedModel3
-
 
 #Checking Collinearity
-vif(finalModel)
+vif(reducedModel3)
 
 #The are lots of related variables that we will have to remove
-model_no_collinearity <- lm(
-  Lower_Unemployment_Rate ~ 
-    Inf_Secundaria_55_64 +
-    Segunda_Etapa_25_34 +
-    Age12_Suitability +
-    Age15_Suitability +
-    Middle_Unemployment_Rate +
-    Upper_Unemployment_Rate +
-    Sex +
-    Year,
-  data = mixedDfSubset
+model_no_collinearity2 <- lm(
+  Lower_Unemployment_Rate ~ Inf_Secundaria_55_64 + Segunda_Etapa_25_34 + 
+    Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
+    Upper_Unemployment_Rate + Sex + Year, data = mixedDfSubset
 )
 
 summary(model_no_collinearity)
-finalModel <- model_no_collinearity
+#Now we can see that the Inf_Secundaria_55_64 predictor has a high p-value, we will see if we
+#have to delete it
+model_no_collinearity2 <- lm(
+  Lower_Unemployment_Rate ~ 
+    Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
+    Upper_Unemployment_Rate + Sex + Year, data = mixedDfSubset
+)
+AIC(model_no_collinearity, model_no_collinearity2)
+BIC(model_no_collinearity, model_no_collinearity2)
+#Both AIC and BIC reduces, meaning that the second model is more appropiate than the other
+
+finalModel <- model_no_collinearity2
 
 #check the collinearity again (It's correct now)
 vif(finalModel)
 
-
 #confidence intervals
 confint(finalModel)
+
+###### INFERENCE: F-TEST ######
+# H0: beta_1 = beta_2 = ... = beta_8 = 0
+# H1: At least one beta_i != 0
+
+#1. Obtain summary statistics
+mod_summary <- summary(finalModel)
+n <- nrow(mixedDfSubset)
+p <- length(coef(finalModel)) - 1
+
+# 2. Calculate the F-statistic
+TSS <- sum((mixedDfSubset$Lower_Unemployment_Rate - mean(mixedDfSubset$Lower_Unemployment_Rate))^2)
+RSS <- deviance(finalModel)
+df_num <- p
+df_den <- n - (p + 1)
+
+Fstat <- ((TSS - RSS)/df_num)/(RSS/df_den)
+
+#3. Critical value F alpha (alpha = 0.05)
+F_alpha <- qf(0.05, df_num, df_den, lower.tail = FALSE)
+
+#4. Final decision
+reject_H0_F <- Fstat > F_alpha
+p_val_F <- pf(Fstat, df_num, df_den, lower.tail = FALSE)
+
+cat("F-statistic:", Fstat, "\nF-critical:", F_alpha, "\nReject H0:", 
+    reject_H0_F, "\nP-value:", p_val_F)
+#The fact that the null hypothesis is rejected means that our model with 7 variables
+#is better than the model given by the average
+
+
+###### INFERENCE: T-TESTS ######
+# We extract the summary of our final model
+mods = summary(finalModel)
+
+#The coefficients table includes Estimates, Std. Errors, t-values, and p-values
+mods$coefficients
+# Hypothesis test for a specific parameter (Year)
+# H0: beta_year = 0 (Year has no effect on Unemployment)
+# H1: beta_year != 0 (Year is a significant predictor)
+
+# Extracting the t-statistic and p-value from the summary
+# ["Year", 3] is the t-value, ["Year", 4] is the Pr(>|t|)
+# We look for the row "Year"
+beta_year_test <- mods$coefficients["Year", 3]
+p_value_year <- mods$coefficients["Year", 4]
+
+# Print the test statistic and p-value from R's calculation
+beta_year_test
+p_value_year
+
+#Let's compute it manually for the "Year" variable:
+#t = Estimate / Std. Error
+t_year <- mods$coefficients["Year", "Estimate"] / mods$coefficients["Year", "Std. Error"]
+t_year
+
+#What is the critical value setting a significance level of 0.05?
+#Degrees of freedom: n - (p + 1) -> finalModel$df.residual
+alpha_level <- 0.05
+t_crit_upp <- qt(alpha_level/2, finalModel$df.residual, lower.tail = FALSE) 
+t_crit_upp
+
+#We can see that the distribution is symetric
+#We don't really need t_crit_low because we use absolute values for a two-tailed test.
+t_crit_low <- qt(alpha_level/2, finalModel$df.residual)
+t_crit_low
+
+#Compare values: We reject H0 if |t| > t_crit_upp
+abs(t_year) > t_crit_upp
+#We reject H0, meaning that the year is a significant predictor in our model
 
 ###############################
 # MODEL DIAGNOSTICS FOR THE FINAL MODEL
