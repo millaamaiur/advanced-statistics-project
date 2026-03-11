@@ -94,7 +94,7 @@ BIC(mod_clean, reducedModel)
 plot(reducedModel, 1)
 #Kind of a linear trend
 #Now we will check the distribution of the residuals
-shapiro.test(residuals(reduced_model))
+shapiro.test(residuals(reducedModel))
 #Slightly below the standard significance level of 0.05 (0.04576), 
 #meaning that the residuals do not follow a normal distribution.
 #However, it is very close to the threshold, so we will assume the
@@ -154,9 +154,53 @@ BIC(reducedModel3, reducedModel4)
 finalModel <- reducedModel3
 
 
+#Checking Collinearity
+vif(finalModel)
+
+#The are lots of related variables that we will have to remove
+model_no_collinearity <- lm(
+  Lower_Unemployment_Rate ~ 
+    Inf_Secundaria_55_64 +
+    Segunda_Etapa_25_34 +
+    Age12_Suitability +
+    Age15_Suitability +
+    Middle_Unemployment_Rate +
+    Upper_Unemployment_Rate +
+    Sex +
+    Year,
+  data = mixedDfSubset
+)
+
+summary(model_no_collinearity)
+finalModel <- model_no_collinearity
+
+#check the collinearity again (It's correct now)
+vif(finalModel)
+
 
 #confidence intervals
-confint(mod12)
+confint(finalModel)
 
-# Compare models using R square 
-#c(summary(mod1)$adj.r.squared, summary(mod12)$adj.r.squared)
+###############################
+# MODEL DIAGNOSTICS FOR THE FINAL MODEL
+###############################
+
+#Diagnostic plots for the final model
+plot(finalModel)
+
+##########   RESULTS   ##########
+#The residuals appear randomly scattered around zero, 
+#suggesting that the linearity assumption is reasonably satisfied.
+#The Q-Q plot shows that most residuals lie close to the theoretical line, 
+#indicating approximate normality with some deviations in the extreme values.
+
+#The diagnostic plots suggest that the main assumptions of the
+#linear regression model are reasonably satisfied
+
+#Normality test for residuals
+shapiro.test(residuals(finalModel))
+#Residuals are approximately normally distributed, with slight deviations in the tails.
+
+
+#Confidence interval of the final model
+confint(finalModel)
