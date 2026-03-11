@@ -5,9 +5,8 @@ library(tidyverse)
 library(dplyr)
 library(MASS)
 
-#setwd("C:/Users/airam.fernandez/OneDrive - Universidad de Deusto/Deusto/2º 2025-26/2. SEMESTRE/Advanced Stadistics/Project")
-data1 <- read.csv("C:/Users/julen.corera/OneDrive - Universidad de Deusto/AdvStat/Project/data/AC.csv")
-data2 <- read.csv("C:/Users/julen.corera/OneDrive - Universidad de Deusto/AdvStat/Project/data/F1.csv")
+data1 <- read.csv("./dataset1.csv")
+data2 <- read.csv("./dataset2.csv")
 summary(data1)
 summary(data2)
 #names of columns
@@ -43,8 +42,9 @@ summary(mod1)
 #There are some variables with high p-value, we discard them
 plot(mod1,1)
 #Kind of a linear trend
+
 #####Backward elimination#####
-#We chose a significance level of alpha=0.15
+#We chose a significance level of alpha= 0.15
 #Firstly, we will discard the high p-value variables
 mod11 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_34 +
               Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
@@ -114,15 +114,67 @@ summary(mod12)
 plot(mod12Clean,1)
 plot(mod12Clean,5)
 
+#We will reduce the significance level in order to reduce the accuracy of our model 
+#Reduce alpha = 0.05
+
+summary(mod12Clean)
+
+#Delete Inf_Secundaria_25_34  with p-value of 0.176158
+mod13 <- lm((Lower_Unemployment_Rate) ~ Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
+              Upper_Activity_Rate_25_64 + Sex, data = mixedDfSubset)
+
+summary(mod13)
+
+#Delete Upper_Activity_Rate_25_64 with p-value of 0.056450
+mod14 <- lm((Lower_Unemployment_Rate) ~ Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
+              Sex, data = mixedDfSubset)
+
+summary(mod14)
+
+#Delete Superior_25_34 with p-value of 0.086163
+mod15 <- lm((Lower_Unemployment_Rate) ~ Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
+              Sex, data = mixedDfSubset)
+
+summary(mod15)
+
+#Delete Lower_Activity_Rate_25_34 p-value of 0.072197 
+mod16 <- lm((Lower_Unemployment_Rate) ~ Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Middle_Activity_Rate_25_64 +
+              Sex, data = mixedDfSubset)
+
+summary(mod16)
+
+#Delete Age12_Suitability with p-value of 0.05507
+mod17 <- lm((Lower_Unemployment_Rate) ~ Segunda_Etapa_25_34 + Age15_Suitability +
+              Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
+              Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + 
+              Lower_Activity_Rate_25_64 + Middle_Activity_Rate_25_64 +
+              Sex, data = mixedDfSubset)
+
+summary(mod17)
+
+
 #confidence intervals
 confint(mod12)
 
 # Compare models using R square 
-c(summary(mod1)$adj.r.squared, summary(mod12)$adj.r.squared)
+#c(summary(mod1)$adj.r.squared, summary(mod12)$adj.r.squared)
 
 # Compare models using AIC y BIC - lowest is better
 AIC(mod1, mod12)
 BIC(mod1, mod12)
+
 
 
 
