@@ -422,12 +422,25 @@ test_data <- mixedDfSubset[-train_index, ]
 
 model_train <- lm(
   Lower_Unemployment_Rate ~ 
-    Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
+    Segunda_Etapa_25_34 + Age15_Suitability + Middle_Unemployment_Rate + 
     Upper_Unemployment_Rate + Sex + Year, data = train_data
 )
 
 #Now let's do the predictions using the training model
 predictions <- predict(model_train, newdata = test_data)
 
-head(predictions)
+#Let's compute the prediction and confidence intervals
+final_intervals <- predict(model_train, newdata = test_data, interval = "prediction")
+final_confidence <- predict(model_train, newdata = test_data, interval = "confidence")
+
+#We will create a matrix showing the real values, the predicted values and both the confidence
+#and prediction intervals
+results_comparison <- cbind(Actual = test_data$Lower_Unemployment_Rate, 
+                            Fit = final_intervals[,"fit"],
+                            LWR_Prediction = final_intervals[,"lwr"],
+                            UPR_Prediction = final_intervals[,"upr"],
+                            LWR_Confidence = final_confidence[,"lwr"],
+                            UPR_Confidence = final_confidence[,"upr"])
+
+head(results_comparison)
 
