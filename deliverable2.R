@@ -43,6 +43,11 @@ summary(mod1)
 ######Checking for outliers######
 plot(mod1,1)
 
+#Now we will compute the outliers by using the formula of studentized residuals
+#This formula marks as outliers the values that have, We divide the error of 
+#each prediction by its estimated standard deviation calculated without that 
+#observation, adjusted for its level of influence, and if that formula surpasses the 
+#threshold of 3, it is marked as an outlier
 res_stud <- rstudent(mod1)
 outliers <- which(abs(res_stud) > 3)
 print(outliers)
@@ -50,12 +55,12 @@ print(outliers)
 ######Leverage points######
 plot(mod1,5)
 sort(cooks.distance(mod1))
-#We can see that firstly the observations 36, 306 and 373 could be outliers in the 
+#We can see that firstly the observations 36, 371 could be outliers in the 
 #Residuals vs Fitted plot (line 43). 
-#Moreover, looking ate the Residuals vs Leverage plot (line 50), 
-#the values 36 abd 394 could also be leverage points
-#Aditionaly, in lines 84 and 85 we computed the outliers with the formula, with this
-#we can see that the observations 303, 370 and 391 are also outliers.
+#Moreover, looking a the the Residuals vs Leverage plot (line 50), 
+#the values 36 and 394 could also be leverage points
+#Additionaly, in lines 48 and 49 we computed the outliers with the formula, with this
+#we can see that the observations 268, 271, 368, 370, 373 and 391 are also outliers.
 #We proceed with the elimination
 
 noise_names <- c("36", "268", "271", "368", "370", "371", "373", "391", "394")
@@ -393,9 +398,10 @@ plot(finalModel,1)
 plot(finalModel,2)
 plot(finalModel,3)
 plot(finalModel,4)
+plot(finalModel,5)
 
 ##########   RESULTS   ##########
-#The residuals appear randomly scattered around zero, 
+#The residuals appear randomly scattered around zero,
 #suggesting that the linearity assumption is reasonably satisfied.
 #The Q-Q plot shows that most residuals lie close to the theoretical line, 
 #indicating approximate normality with some deviations in the extreme values.
