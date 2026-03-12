@@ -258,7 +258,10 @@ abs(t_year) > t_crit_upp
 ###############################
 
 #Diagnostic plots for the final model
-plot(finalModel)
+plot(finalModel,1)
+plot(finalModel,2)
+plot(finalModel,3)
+plot(finalModel,4)
 
 ##########   RESULTS   ##########
 #The residuals appear randomly scattered around zero, 
@@ -276,3 +279,24 @@ shapiro.test(residuals(finalModel))
 
 #Confidence interval of the final model
 confint(finalModel)
+
+##########   TRAINING/TESTING   ##########
+
+#We are going to split the dataset in 70% Training and 30% Testing
+
+train_index <- sample(1:nrow(mixedDfSubset), 0.7 * nrow(mixedDfSubset))
+
+train_data <- mixedDfSubset[train_index, ]
+test_data <- mixedDfSubset[-train_index, ]
+
+model_train <- lm(
+  Lower_Unemployment_Rate ~ 
+    Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
+    Upper_Unemployment_Rate + Sex + Year, data = train_data
+)
+
+#Now let's do the predictions using the training model
+predictions <- predict(model_train, newdata = test_data)
+
+head(predictions)
+
