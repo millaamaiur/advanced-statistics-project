@@ -196,7 +196,7 @@ vif(finalModel)
 confint(finalModel)
 
 ###### INFERENCE: F-TEST ######
-# H0: beta_1 = beta_2 = ... = beta_8 = 0
+# H0: beta_1 = beta_2 = ... = beta_6 = 0
 # H1: At least one beta_i != 0
 
 #1. Obtain summary statistics
@@ -405,7 +405,9 @@ plot(finalModel,4)
 
 #Normality test for residuals
 shapiro.test(residuals(finalModel))
-#Residuals are approximately normally distributed, with slight deviations in the tails.
+#Looking at the results of the shapiro test we could say that the residuals don't follow a normal distribution.
+#However, we've analyzed the Q-Q plot and concluded that they follow a normal distribution with
+#a small deviation on the upper tail
 
 
 #Confidence interval of the final model
