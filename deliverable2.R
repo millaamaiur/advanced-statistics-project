@@ -90,7 +90,7 @@ plot(full_model,1)
 #observation, adjusted for its level of influence, and if that formula surpasses the 
 #cooks_threshold of 3, it is marked as an outlier
 studentized_residuals<- rstudent(full_model)
-studentized_outlier_indices<- which(abs(res_stud) > 3)
+outliers<- which(abs(studentized_residuals) > 3)
 print(outliers)
 
 ######Leverage points######
@@ -104,10 +104,10 @@ sort(cooks.distance(full_model))
 #we can see that the observations 268, 271, 368, 370, 373 and 391 are also outliers.
 #We proceed with the elimination
 
-influential_row_names<- c("36", "268", "271", "368", "370", "371", "373", "391", "394")
+influential_observations<- c("36", "268", "271", "368", "370", "371", "373", "391", "394")
 
 #Filter the original dataset finding the four values
-mixedDfSubset <- mixedDf[!(rownames(mixedDf) %in% noise_names), ]
+mixedDfSubset <- mixedDf[!(rownames(mixedDf) %in% influential_observations), ]
 
 summary(mixedDfSubset)
 
@@ -209,7 +209,7 @@ collinearity_reduced_model_1<- lm(
     high_unemployment_rate + sex + year, data = mixedDfSubset
 )
 
-summary(model_no_collinearity)
+summary(collinearity_reduced_model_1)
 #Now we can see that the low_secondary_55_64 predictor has a high p-value, we will see if we
 #have to delete it
 collinearity_reduced_model_2<- lm(
@@ -217,9 +217,9 @@ collinearity_reduced_model_2<- lm(
     upper_secondary_25_34 + age12_suitability + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = mixedDfSubset
 )
-summary(model_no_collinearity2)
-AIC(model_no_collinearity, model_no_collinearity2)
-BIC(model_no_collinearity, model_no_collinearity2)
+summary(collinearity_reduced_model_2)
+AIC(collinearity_reduced_model_1, collinearity_reduced_model_2)
+BIC(collinearity_reduced_model_1, collinearity_reduced_model_2)
 #Both AIC and BIC reduces, meaning that the second model is more appropiate than the other
 
 #Now we will also delete the variable age12_suitability as it has a p-value of 0.06713
@@ -229,11 +229,11 @@ collinearity_reduced_model_3 <- lm(
     high_unemployment_rate + sex + year, data = mixedDfSubset
 )
 summary(collinearity_reduced_model_3)
-AIC(model_no_collinearity2, collinearity_reduced_model_3)
-BIC(model_no_collinearity2, collinearity_reduced_model_3)
+AIC(collinearity_reduced_model_2, collinearity_reduced_model_3)
+BIC(collinearity_reduced_model_2, collinearity_reduced_model_3)
 #AIC increased ~ 1 unit and BIC decreased ~ 2 units, therefore, we will consider the model with
 #less variables
-final_model<- collinearity_reduced_model_3
+finalModel<- collinearity_reduced_model_3
 
 #check the collinearity again (It's correct now)
 vif(finalModel)
@@ -276,7 +276,7 @@ cat("F-statistic:", Fstat, "\nF-critical:", F_alpha, "\nReject H0:",
 final_model_coeff_summary= summary(finalModel)
 
 #The coefficients table includes Estimates, Std. Errors, t-values, and p-values
-mods$coefficients
+final_model_coeff_summary$coefficients
 #Hypothesis test for a specific parameter (year)
 #H0: beta_year = 0 (year has no effect on Unemployment)
 #H1: beta_year != 0 (year is a significant predictor)
@@ -284,8 +284,8 @@ mods$coefficients
 #Extracting the t-statistic and p-value from the summary
 #["year", 3] is the t-value, ["year", 4] is the Pr(>|t|)
 #We look for the row "year"
-beta_year_test <- mods$coefficients["year", 3]
-p_value_year <- mods$coefficients["year", 4]
+beta_year_test <- final_model_coeff_summary$coefficients["year", 3]
+p_value_year <- final_model_coeff_summary$coefficients["year", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_year_test
@@ -293,7 +293,7 @@ p_value_year
 
 #Let's compute it manually for the "year" variable:
 #t = Estimate / Std. Error
-t_year <- mods$coefficients["year", "Estimate"] / mods$coefficients["year", "Std. Error"]
+t_year <- final_model_coeff_summary$coefficients["year", "Estimate"] / final_model_coeff_summary$coefficients["year", "Std. Error"]
 t_year
 
 #What is the critical value setting a significance level of 0.05?
@@ -319,8 +319,8 @@ abs(t_year) > t_crit_upp
 #Extracting the t-statistic and p-value from the summary
 #["upper_secondary_25_34", 3] is the t-value, ["upper_secondary_25_34", 4] is the Pr(>|t|)
 #We look for the row "upper_secondary_25_34"
-beta_segunda_25_34_test <- mods$coefficients["upper_secondary_25_34", 3]
-p_value_segunda_25_34 <- mods$coefficients["upper_secondary_25_34", 4]
+beta_segunda_25_34_test <- final_model_coeff_summary$coefficients["upper_secondary_25_34", 3]
+p_value_segunda_25_34 <- final_model_coeff_summary$coefficients["upper_secondary_25_34", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_segunda_25_34_test
@@ -328,7 +328,7 @@ p_value_segunda_25_34
 
 #Let's compute it manually for the "upper_secondary_25_34" variable:
 #t = Estimate / Std. Error
-t_segunda_25_34 <- mods$coefficients["upper_secondary_25_34", "Estimate"] / mods$coefficients["upper_secondary_25_34", "Std. Error"]
+t_segunda_25_34 <- final_model_coeff_summary$coefficients["upper_secondary_25_34", "Estimate"] / final_model_coeff_summary$coefficients["upper_secondary_25_34", "Std. Error"]
 t_segunda_25_34
 
 #Compare values: We reject H0 if |t| > t_crit_upp
@@ -343,8 +343,8 @@ abs(t_segunda_25_34) > t_crit_upp
 #Extracting the t-statistic and p-value from the summary
 #["mid_unemployment_rate", 3] is the t-value, ["mid_unemployment_rate", 4] is the Pr(>|t|)
 #We look for the row "mid_unemployment_rate"
-beta_mid_unemployment_rate_test <- mods$coefficients["mid_unemployment_rate", 3]
-p_value_mid_unemployment_rate <- mods$coefficients["mid_unemployment_rate", 4]
+beta_mid_unemployment_rate_test <- final_model_coeff_summary$coefficients["mid_unemployment_rate", 3]
+p_value_mid_unemployment_rate <- final_model_coeff_summary$coefficients["mid_unemployment_rate", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_mid_unemployment_rate_test
@@ -352,7 +352,7 @@ p_value_mid_unemployment_rate
 
 #Let's compute it manually for the "mid_unemployment_rate" variable:
 #t = Estimate / Std. Error
-t_mid_unemployment_rate <- mods$coefficients["mid_unemployment_rate", "Estimate"] / mods$coefficients["mid_unemployment_rate", "Std. Error"]
+t_mid_unemployment_rate <- final_model_coeff_summary$coefficients["mid_unemployment_rate", "Estimate"] / final_model_coeff_summary$coefficients["mid_unemployment_rate", "Std. Error"]
 t_mid_unemployment_rate
 
 #Compare values: We reject H0 if |t| > t_crit_upp
@@ -367,8 +367,8 @@ summary(finalModel)
 #Extracting the t-statistic and p-value from the summary
 #["high_unemployment_rate", 3] is the t-value, ["high_unemployment_rate", 4] is the Pr(>|t|)
 #We look for the row "high_unemployment_rate"
-beta_high_unemployment_rate_test <- mods$coefficients["high_unemployment_rate", 3]
-p_value_high_unemployment_rate <- mods$coefficients["high_unemployment_rate", 4]
+beta_high_unemployment_rate_test <- final_model_coeff_summary$coefficients["high_unemployment_rate", 3]
+p_value_high_unemployment_rate <- final_model_coeff_summary$coefficients["high_unemployment_rate", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_high_unemployment_rate_test
@@ -376,7 +376,7 @@ p_value_high_unemployment_rate
 
 #Let's compute it manually for the "high_unemployment_rate" variable:
 #t = Estimate / Std. Error
-t_high_unemployment_rate <- mods$coefficients["high_unemployment_rate", "Estimate"] / mods$coefficients["high_unemployment_rate", "Std. Error"]
+t_high_unemployment_rate <- final_model_coeff_summary$coefficients["high_unemployment_rate", "Estimate"] / final_model_coeff_summary$coefficients["high_unemployment_rate", "Std. Error"]
 t_high_unemployment_rate
 
 #Compare values: We reject H0 if |t| > t_crit_upp
@@ -390,8 +390,8 @@ summary(finalModel)
 #Extracting the t-statistic and p-value from the summary
 #["age15_suitability", 3] is the t-value, ["age15_suitability", 4] is the Pr(>|t|)
 #We look for the row "age15_suitability"
-beta_age15_suitability_test <- mods$coefficients["age15_suitability", 3]
-p_value_age15_suitability <- mods$coefficients["age15_suitability", 4]
+beta_age15_suitability_test <- final_model_coeff_summary$coefficients["age15_suitability", 3]
+p_value_age15_suitability <- final_model_coeff_summary$coefficients["age15_suitability", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_age15_suitability_test
@@ -399,7 +399,7 @@ p_value_age15_suitability
 
 #Let's compute it manually for the "age15_suitability" variable:
 #t = Estimate / Std. Error
-t_age15_suitability <- mods$coefficients["age15_suitability", "Estimate"] / mods$coefficients["age15_suitability", "Std. Error"]
+t_age15_suitability <- final_model_coeff_summary$coefficients["age15_suitability", "Estimate"] / final_model_coeff_summary$coefficients["age15_suitability", "Std. Error"]
 t_age15_suitability
 
 #Compare values: We reject H0 if |t| > t_crit_upp
@@ -414,8 +414,8 @@ abs(t_age15_suitability) > t_crit_upp
 #Extracting the t-statistic and p-value from the summary
 #["sexMale", 3] is the t-value, ["sexMale", 4] is the Pr(>|t|)
 #We look for the row "sexMale"
-beta_sexMale_test <- mods$coefficients["sexMale", 3]
-p_value_sexMale <- mods$coefficients["sexMale", 4]
+beta_sexMale_test <- final_model_coeff_summary$coefficients["sexMale", 3]
+p_value_sexMale <- final_model_coeff_summary$coefficients["sexMale", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_sexMale_test
@@ -423,7 +423,7 @@ p_value_sexMale
 
 #Let's compute it manually for the "sexMale" variable:
 #t = Estimate / Std. Error
-t_sexMale <- mods$coefficients["sexMale", "Estimate"] / mods$coefficients["sexMale", "Std. Error"]
+t_sexMale <- final_model_coeff_summary$coefficients["sexMale", "Estimate"] / final_model_coeff_summary$coefficients["sexMale", "Std. Error"]
 t_sexMale
 
 #Compare values: We reject H0 if |t| > t_crit_upp
@@ -445,9 +445,9 @@ plot(finalModel,5)
 
 cooks_distances<- cooks.distance(finalModel)
 cooks_threshold<- 4/nrow(mixedDfSubset)
-cooks_outlier_indices <- which(cooks_distances> threshold)
+cooks_outlier_indexes <- which(cooks_distances> cooks_threshold)
 
-data_clean <- mixedDfSubset[-outliers,]
+data_clean <- mixedDfSubset[-cooks_outlier_indexes,]
 
 final_model_without_influential<- lm(
   low_unemployment_rate ~ 
@@ -455,8 +455,8 @@ final_model_without_influential<- lm(
     high_unemployment_rate + sex + year, data = data_clean
 )
 summary(finalModel)
-summary(model_clean)
-
+summary(final_model_without_influential)
+plot(final_model_without_influential)
 #The model without the outlier_indices has a larger R^2 and the variables sex and year become less important
 #due to their high p-value. So, we can conclude that those variables were highly influenced by the outliers.
 
