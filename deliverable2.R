@@ -449,16 +449,43 @@ cooks_outlier_indexes <- which(cooks_distances> cooks_threshold)
 
 data_clean <- mixedDfSubset[-cooks_outlier_indexes,]
 
-final_model_without_influential<- lm(
-  low_unemployment_rate ~ 
-    upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
-    high_unemployment_rate + sex + year, data = data_clean
+model_without_influential_1<- lm(
+  low_unemployment_rate ~ low_secondary_25_64 + low_secondary_25_34 + 
+    low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
+    upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
+    age12_suitability + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+    mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
+    high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
+    mid_activity_25_64 + mid_activity_25_34 + 
+    high_activity_25_64 + high_activity_25_34 + sex + year, data = data_clean
 )
-summary(finalModel)
-summary(final_model_without_influential)
-plot(final_model_without_influential)
-#The model without the outlier_indices has a larger R^2 and the variables sex and year become less important
-#due to their high p-value. So, we can conclude that those variables were highly influenced by the outliers.
+summary(model_without_influential_1)
+plot(model_without_influential_1)
+
+#Now we have a model without the noise on the upper tail, we will do again the model simplification
+
+model_without_influential_2 <- step(model_without_influential_1, direction = "backward")
+summary(model_without_influential_2)
+plot(model_without_influential_2)
+# Compare models using AIC and BIC - lowest is better
+AIC(model_without_influential_1, model_without_influential_2)
+BIC(model_without_influential_1, model_without_influential_2)
+#Both the AIC and BIC went down, meaning that the reduced model is better
+
+#Now remove again all the values with p-value lower than: alpha = 0.05
+#Remove high_activity_25_64 (alpha=0.147648)
+model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 + low_secondary_25_34 + 
+      upper_secondary_25_64 + upper_secondary_55_64 + higher_education_55_64 +
+      age12_suitability + age15_suitability + mid_unemployment_rate + 
+      high_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+      mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
+      high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
+      mid_activity_25_64 + high_activity_25_64 + year, data = data_clean)
+summary(model_without_influential_3)
+# Compare models using AIC and BIC - lowest is better
+AIC(model_without_influential_2, model_without_influential_3)
+BIC(model_without_influential_2, model_without_influential_3)
 
 ##########   RESULTS   ##########
 #The residuals appear randomly scattered around zero,
