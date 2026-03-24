@@ -22,16 +22,57 @@ mixedDf <- na.omit(mixedDf)
 summary(mixedDf)
 dim(mixedDf)
 
+#Rename variables
+mixedDf <- mixedDf %>%
+  rename(
+    autonomous_community = CCAA,
+    sex = Sex,
+    year = Year,
+    
+    low_unemployment_rate = Lower_Unemployment_Rate,
+    mid_unemployment_rate = Middle_Unemployment_Rate,
+    high_unemployment_rate = Upper_Unemployment_Rate,
+    
+    low_secondary_25_64 = Inf_Secundaria_25_64,
+    low_secondary_25_34 = Inf_Secundaria_25_34,
+    low_secondary_55_64 = Inf_Secundaria_55_64,
+    
+    upper_secondary_25_64 = Segunda_Etapa_25_64,
+    upper_secondary_25_34 = Segunda_Etapa_25_34,
+    upper_secondary_55_64 = Segunda_Etapa_55_64,
+    
+    higher_education_25_64 = Superior_25_64,
+    higher_education_25_34 = Superior_25_34,
+    higher_education_55_64 = Superior_55_64,
+    
+    age12_suitability = Age12_Suitability,
+    age15_suitability = Age15_Suitability,
+    
+    low_employment_25_64 = Lower_Emp_Rate_25_64,
+    low_employment_25_34 = Lower_Emp_Rate_25_34,
+    mid_employment_25_64 = Middle_Emp_Rate_25_64,
+    mid_employment_25_34 = Middle_Emp_Rate_25_34,
+    high_employment_25_64 = Upper_Emp_Rate_25_64,
+    high_employment_25_34 = Upper_Emp_Rate_25_34,
+    
+    low_activity_25_64 = Lower_Activity_Rate_25_64,
+    low_activity_25_34 = Lower_Activity_Rate_25_34,
+    mid_activity_25_64 = Middle_Activity_Rate_25_64,
+    mid_activity_25_34 = Middle_Activity_Rate_25_34,
+    high_activity_25_64 = Upper_Activity_Rate_25_64,
+    high_activity_25_34 = Upper_Activity_Rate_25_34
+  )
+
 # Mod1 using F1
-mod1 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_64 + Inf_Secundaria_25_34 + 
-             Inf_Secundaria_55_64 + Segunda_Etapa_25_64 + Segunda_Etapa_25_34 + 
-             Segunda_Etapa_55_64 + Superior_25_64 + Superior_25_34 + Superior_55_64 +
-             Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-             Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + Lower_Emp_Rate_25_34 +
-             Middle_Emp_Rate_25_64 + Middle_Emp_Rate_25_34 + Upper_Emp_Rate_25_64 + 
-             Upper_Emp_Rate_25_34 + Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 +
-             Middle_Activity_Rate_25_64 + Middle_Activity_Rate_25_34 + 
-             Upper_Activity_Rate_25_64 + Upper_Activity_Rate_25_34 + Sex + Year, data = mixedDf)
+mod1 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
+             low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
+             upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
+             age12_suitability + age15_suitability + mid_unemployment_rate + 
+             high_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+             mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
+             high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
+             mid_activity_25_64 + mid_activity_25_34 + 
+             high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDf)
 
 #Plotting mod1
 plot(mod1)
@@ -72,15 +113,15 @@ summary(mixedDfSubset)
 
 #Now that the outliers and leverage points have been erased, we will create again our model
 
-mod_clean <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_64 + Inf_Secundaria_25_34 + 
-                  Inf_Secundaria_55_64 + Segunda_Etapa_25_64 + Segunda_Etapa_25_34 + 
-                  Segunda_Etapa_55_64 + Superior_25_64 + Superior_25_34 + Superior_55_64 +
-                  Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-                  Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + Lower_Emp_Rate_25_34 +
-                  Middle_Emp_Rate_25_64 + Middle_Emp_Rate_25_34 + Upper_Emp_Rate_25_64 + 
-                  Upper_Emp_Rate_25_34 + Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 +
-                  Middle_Activity_Rate_25_64 + Middle_Activity_Rate_25_34 + 
-                  Upper_Activity_Rate_25_64 + Upper_Activity_Rate_25_34 + Sex + Year, data = mixedDfSubset)
+mod_clean <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
+                  low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
+                  upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
+                  age12_suitability + age15_suitability + mid_unemployment_rate + 
+                  high_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                  mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
+                  high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
+                  mid_activity_25_64 + mid_activity_25_34 + 
+                  high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDfSubset)
 summary(mod_clean)
 
 #####Backward elimination#####
@@ -110,13 +151,13 @@ shapiro.test(residuals(reducedModel))
 #variables, as we have some that might not be useful. We will determine a significance level
 #of: alpha = 0.05
 
-#Firstly, we will take out the variable Inf_Secundaria_25_34 with p-value of 0.09949
-reducedModel2 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_64 + Inf_Secundaria_55_64 + 
-                   Segunda_Etapa_25_34 + Superior_25_34 + Age12_Suitability + Age15_Suitability +
-                   Middle_Unemployment_Rate + Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + 
-                   Lower_Emp_Rate_25_34 + Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + Upper_Emp_Rate_25_34 +
-                   Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
-                   Upper_Activity_Rate_25_64 + Upper_Activity_Rate_25_34 + Year, data = mixedDfSubset)
+#Firstly, we will take out the variable low_secondary_25_34 with p-value of 0.09949
+reducedModel2 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
+                   upper_secondary_25_34 + higher_education_25_34 + age12_suitability + age15_suitability +
+                   mid_unemployment_rate + high_unemployment_rate + low_employment_25_64 + 
+                   low_employment_25_34 + mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
+                   low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                   high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
 summary(reducedModel2)
 plot(reducedModel2,1)
 plot(reducedModel2,5)
@@ -127,13 +168,13 @@ BIC(reducedModel, reducedModel2)
 #Although the AIC slightly increased (~ 1 unit more), the BIC also slightly decreased (by ~ 3 units)
 #For our purpose, we will choose the model with less variables
 
-#Delete Superior_25_34 with p-value of 0.14719    
-reducedModel3 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_25_64 + Inf_Secundaria_55_64 + 
-                      Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-                      Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + Lower_Emp_Rate_25_34 + 
-                      Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + Upper_Emp_Rate_25_34 +
-                      Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
-                      Upper_Activity_Rate_25_64 + Upper_Activity_Rate_25_34 + Year, data = mixedDfSubset)
+#Delete higher_education_25_34 with p-value of 0.14719    
+reducedModel3 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
+                      upper_secondary_25_34 + age12_suitability + age15_suitability + mid_unemployment_rate + 
+                      high_unemployment_rate + low_employment_25_64 + low_employment_25_34 + 
+                      mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
+                      low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                      high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
 
 summary(reducedModel3)
 #AIC and BIC tests
@@ -142,19 +183,19 @@ BIC(reducedModel2, reducedModel3)
 #Now, no significant changes have occurred on the AIC, however, the BIC has decreased, meaning that
 #the reducedModel3 could be better, we will use this one.
 
-#Delete Inf_Secundaria_25_64 with p-value of 0.072997
-reducedModel4 <- lm((Lower_Unemployment_Rate) ~ Inf_Secundaria_55_64 + Segunda_Etapa_25_34 + 
-                      Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-                      Upper_Unemployment_Rate + Lower_Emp_Rate_25_64 + Lower_Emp_Rate_25_34 + 
-                      Middle_Emp_Rate_25_64 + Upper_Emp_Rate_25_64 + Upper_Emp_Rate_25_34 +
-                      Lower_Activity_Rate_25_64 + Lower_Activity_Rate_25_34 + Middle_Activity_Rate_25_64 +
-                      Upper_Activity_Rate_25_64 + Upper_Activity_Rate_25_34 + Year, data = mixedDfSubset)
+#Delete low_secondary_25_64 with p-value of 0.072997
+reducedModel4 <- lm((low_unemployment_rate) ~ low_secondary_55_64 + upper_secondary_25_34 + 
+                      age12_suitability + age15_suitability + mid_unemployment_rate + 
+                      high_unemployment_rate + low_employment_25_64 + low_employment_25_34 + 
+                      mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
+                      low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                      high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
 
 summary(reducedModel4)
 #AIC and BIC tests
 AIC(reducedModel3, reducedModel4)
 BIC(reducedModel3, reducedModel4)
-#Finally, when deleting the Inf_Secundaria_25_64 predictor, both AIC and BIC increases drastically,
+#Finally, when deleting the low_secondary_25_64 predictor, both AIC and BIC increases drastically,
 #meaning that the reduced model isn't the most appropiate one. Then, we will take the reducedModel3
 #as our final model.
 
@@ -163,29 +204,29 @@ vif(reducedModel3)
 
 #The are lots of related variables that we will have to remove
 model_no_collinearity <- lm(
-  Lower_Unemployment_Rate ~ Inf_Secundaria_55_64 + Segunda_Etapa_25_34 + 
-    Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-    Upper_Unemployment_Rate + Sex + Year, data = mixedDfSubset
+  low_unemployment_rate ~ low_secondary_55_64 + upper_secondary_25_34 + 
+    age12_suitability + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + sex + year, data = mixedDfSubset
 )
 
 summary(model_no_collinearity)
-#Now we can see that the Inf_Secundaria_55_64 predictor has a high p-value, we will see if we
+#Now we can see that the low_secondary_55_64 predictor has a high p-value, we will see if we
 #have to delete it
 model_no_collinearity2 <- lm(
-  Lower_Unemployment_Rate ~ 
-    Segunda_Etapa_25_34 + Age12_Suitability + Age15_Suitability + Middle_Unemployment_Rate + 
-    Upper_Unemployment_Rate + Sex + Year, data = mixedDfSubset
+  low_unemployment_rate ~ 
+    upper_secondary_25_34 + age12_suitability + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + sex + year, data = mixedDfSubset
 )
 summary(model_no_collinearity2)
 AIC(model_no_collinearity, model_no_collinearity2)
 BIC(model_no_collinearity, model_no_collinearity2)
 #Both AIC and BIC reduces, meaning that the second model is more appropiate than the other
 
-#Now we will also delete the variable Age12_Suitability as it has a p-value of 0.06713
+#Now we will also delete the variable age12_suitability as it has a p-value of 0.06713
 model_no_collinearity3 <- lm(
-  Lower_Unemployment_Rate ~ 
-    Segunda_Etapa_25_34 + Age15_Suitability + Middle_Unemployment_Rate + 
-    Upper_Unemployment_Rate + Sex + Year, data = mixedDfSubset
+  low_unemployment_rate ~ 
+    upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + sex + year, data = mixedDfSubset
 )
 summary(model_no_collinearity3)
 AIC(model_no_collinearity2, model_no_collinearity3)
@@ -210,7 +251,7 @@ n <- nrow(mixedDfSubset)
 p <- length(coef(finalModel)) - 1
 
 # 2. Calculate the F-statistic
-TSS <- sum((mixedDfSubset$Lower_Unemployment_Rate - mean(mixedDfSubset$Lower_Unemployment_Rate))^2)
+TSS <- sum((mixedDfSubset$low_unemployment_rate - mean(mixedDfSubset$low_unemployment_rate))^2)
 RSS <- deviance(finalModel)
 df_num <- p
 df_den <- n - (p + 1)
@@ -236,23 +277,23 @@ mods = summary(finalModel)
 
 #The coefficients table includes Estimates, Std. Errors, t-values, and p-values
 mods$coefficients
-#Hypothesis test for a specific parameter (Year)
-#H0: beta_year = 0 (Year has no effect on Unemployment)
-#H1: beta_year != 0 (Year is a significant predictor)
+#Hypothesis test for a specific parameter (year)
+#H0: beta_year = 0 (year has no effect on Unemployment)
+#H1: beta_year != 0 (year is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["Year", 3] is the t-value, ["Year", 4] is the Pr(>|t|)
-#We look for the row "Year"
-beta_year_test <- mods$coefficients["Year", 3]
-p_value_year <- mods$coefficients["Year", 4]
+#["year", 3] is the t-value, ["year", 4] is the Pr(>|t|)
+#We look for the row "year"
+beta_year_test <- mods$coefficients["year", 3]
+p_value_year <- mods$coefficients["year", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_year_test
 p_value_year
 
-#Let's compute it manually for the "Year" variable:
+#Let's compute it manually for the "year" variable:
 #t = Estimate / Std. Error
-t_year <- mods$coefficients["Year", "Estimate"] / mods$coefficients["Year", "Std. Error"]
+t_year <- mods$coefficients["year", "Estimate"] / mods$coefficients["year", "Std. Error"]
 t_year
 
 #What is the critical value setting a significance level of 0.05?
@@ -271,123 +312,123 @@ abs(t_year) > t_crit_upp
 #We reject H0, meaning that the year is a significant predictor in our model
 
 
-#Hypothesis test for Segunda_Etapa_25_34 parameter
-#H0: beta_Segunda_Etapa_25_34 = 0 (Segunda_Etapa_25_34 has no effect on Unemployment)
-#H1: beta_Segunda_Etapa_25_34 != 0 (Segunda_Etapa_25_34 is a significant predictor)
+#Hypothesis test for upper_secondary_25_34 parameter
+#H0: beta_upper_secondary_25_34 = 0 (upper_secondary_25_34 has no effect on Unemployment)
+#H1: beta_upper_secondary_25_34 != 0 (upper_secondary_25_34 is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["Segunda_Etapa_25_34", 3] is the t-value, ["Segunda_Etapa_25_34", 4] is the Pr(>|t|)
-#We look for the row "Segunda_Etapa_25_34"
-beta_segunda_25_34_test <- mods$coefficients["Segunda_Etapa_25_34", 3]
-p_value_segunda_25_34 <- mods$coefficients["Segunda_Etapa_25_34", 4]
+#["upper_secondary_25_34", 3] is the t-value, ["upper_secondary_25_34", 4] is the Pr(>|t|)
+#We look for the row "upper_secondary_25_34"
+beta_segunda_25_34_test <- mods$coefficients["upper_secondary_25_34", 3]
+p_value_segunda_25_34 <- mods$coefficients["upper_secondary_25_34", 4]
 
 #Print the test statistic and p-value from R's calculation
 beta_segunda_25_34_test
 p_value_segunda_25_34
 
-#Let's compute it manually for the "Segunda_Etapa_25_34" variable:
+#Let's compute it manually for the "upper_secondary_25_34" variable:
 #t = Estimate / Std. Error
-t_segunda_25_34 <- mods$coefficients["Segunda_Etapa_25_34", "Estimate"] / mods$coefficients["Segunda_Etapa_25_34", "Std. Error"]
+t_segunda_25_34 <- mods$coefficients["upper_secondary_25_34", "Estimate"] / mods$coefficients["upper_secondary_25_34", "Std. Error"]
 t_segunda_25_34
 
 #Compare values: We reject H0 if |t| > t_crit_upp
 abs(t_segunda_25_34) > t_crit_upp
-#We reject H0, meaning that the Segunda_Etapa_25_34 is a significant predictor in our model
+#We reject H0, meaning that the upper_secondary_25_34 is a significant predictor in our model
 
 
-#Hypothesis test for Middle_Unemployment_Rate parameter
-#H0: beta_Middle_Unemployment_Rate = 0 (Middle_Unemployment_Rate has no effect on Unemployment)
-#H1: beta_Middle_Unemployment_Rate != 0 (Middle_Unemployment_Rate is a significant predictor)
+#Hypothesis test for mid_unemployment_rate parameter
+#H0: beta_mid_unemployment_rate = 0 (mid_unemployment_rate has no effect on Unemployment)
+#H1: beta_mid_unemployment_rate != 0 (mid_unemployment_rate is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["Middle_Unemployment_Rate", 3] is the t-value, ["Middle_Unemployment_Rate", 4] is the Pr(>|t|)
-#We look for the row "Middle_Unemployment_Rate"
-beta_Middle_Unemployment_Rate_test <- mods$coefficients["Middle_Unemployment_Rate", 3]
-p_value_Middle_Unemployment_Rate <- mods$coefficients["Middle_Unemployment_Rate", 4]
+#["mid_unemployment_rate", 3] is the t-value, ["mid_unemployment_rate", 4] is the Pr(>|t|)
+#We look for the row "mid_unemployment_rate"
+beta_mid_unemployment_rate_test <- mods$coefficients["mid_unemployment_rate", 3]
+p_value_mid_unemployment_rate <- mods$coefficients["mid_unemployment_rate", 4]
 
 #Print the test statistic and p-value from R's calculation
-beta_Middle_Unemployment_Rate_test
-p_value_Middle_Unemployment_Rate
+beta_mid_unemployment_rate_test
+p_value_mid_unemployment_rate
 
-#Let's compute it manually for the "Middle_Unemployment_Rate" variable:
+#Let's compute it manually for the "mid_unemployment_rate" variable:
 #t = Estimate / Std. Error
-t_Middle_Unemployment_Rate <- mods$coefficients["Middle_Unemployment_Rate", "Estimate"] / mods$coefficients["Middle_Unemployment_Rate", "Std. Error"]
-t_Middle_Unemployment_Rate
+t_mid_unemployment_rate <- mods$coefficients["mid_unemployment_rate", "Estimate"] / mods$coefficients["mid_unemployment_rate", "Std. Error"]
+t_mid_unemployment_rate
 
 #Compare values: We reject H0 if |t| > t_crit_upp
-abs(t_Middle_Unemployment_Rate) > t_crit_upp
-#We reject H0, meaning that the Middle_Unemployment_Rate is a significant predictor in our model
+abs(t_mid_unemployment_rate) > t_crit_upp
+#We reject H0, meaning that the mid_unemployment_rate is a significant predictor in our model
 
 summary(finalModel)
-#Hypothesis test for Middle_Unemployment_Rate parameter
-#H0: beta_Age15_Suitability = 0 (Middle_Unemployment_Rate has no effect on Unemployment)
-#H1: beta_Age15_Suitability != 0 (Middle_Unemployment_Rate is a significant predictor)
+#Hypothesis test for mid_unemployment_rate parameter
+#H0: beta_age15_suitability = 0 (mid_unemployment_rate has no effect on Unemployment)
+#H1: beta_age15_suitability != 0 (mid_unemployment_rate is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["Upper_Unemployment_Rate", 3] is the t-value, ["Upper_Unemployment_Rate", 4] is the Pr(>|t|)
-#We look for the row "Upper_Unemployment_Rate"
-beta_Upper_Unemployment_Rate_test <- mods$coefficients["Upper_Unemployment_Rate", 3]
-p_value_Upper_Unemployment_Rate <- mods$coefficients["Upper_Unemployment_Rate", 4]
+#["high_unemployment_rate", 3] is the t-value, ["high_unemployment_rate", 4] is the Pr(>|t|)
+#We look for the row "high_unemployment_rate"
+beta_high_unemployment_rate_test <- mods$coefficients["high_unemployment_rate", 3]
+p_value_high_unemployment_rate <- mods$coefficients["high_unemployment_rate", 4]
 
 #Print the test statistic and p-value from R's calculation
-beta_Upper_Unemployment_Rate_test
-p_value_Upper_Unemployment_Rate
+beta_high_unemployment_rate_test
+p_value_high_unemployment_rate
 
-#Let's compute it manually for the "Upper_Unemployment_Rate" variable:
+#Let's compute it manually for the "high_unemployment_rate" variable:
 #t = Estimate / Std. Error
-t_Upper_Unemployment_Rate <- mods$coefficients["Upper_Unemployment_Rate", "Estimate"] / mods$coefficients["Upper_Unemployment_Rate", "Std. Error"]
-t_Upper_Unemployment_Rate
+t_high_unemployment_rate <- mods$coefficients["high_unemployment_rate", "Estimate"] / mods$coefficients["high_unemployment_rate", "Std. Error"]
+t_high_unemployment_rate
 
 #Compare values: We reject H0 if |t| > t_crit_upp
-abs(t_Upper_Unemployment_Rate) > t_crit_upp
-#We reject H0, meaning that the Upper_Unemployment_Rate is a significant predictor in our model
+abs(t_high_unemployment_rate) > t_crit_upp
+#We reject H0, meaning that the high_unemployment_rate is a significant predictor in our model
 summary(finalModel)
-#Hypothesis test for Age15_Suitability parameter
-#H0: beta_Age15_Suitability = 0 (Age15_Suitability has no effect on Unemployment)
-#H1: beta_Age15_Suitability != 0 (Age15_Suitability is a significant predictor)
+#Hypothesis test for age15_suitability parameter
+#H0: beta_age15_suitability = 0 (age15_suitability has no effect on Unemployment)
+#H1: beta_age15_suitability != 0 (age15_suitability is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["Age15_Suitability", 3] is the t-value, ["Age15_Suitability", 4] is the Pr(>|t|)
-#We look for the row "Age15_Suitability"
-beta_Age15_Suitability_test <- mods$coefficients["Age15_Suitability", 3]
-p_value_Age15_Suitability <- mods$coefficients["Age15_Suitability", 4]
+#["age15_suitability", 3] is the t-value, ["age15_suitability", 4] is the Pr(>|t|)
+#We look for the row "age15_suitability"
+beta_age15_suitability_test <- mods$coefficients["age15_suitability", 3]
+p_value_age15_suitability <- mods$coefficients["age15_suitability", 4]
 
 #Print the test statistic and p-value from R's calculation
-beta_Age15_Suitability_test
-p_value_Age15_Suitability
+beta_age15_suitability_test
+p_value_age15_suitability
 
-#Let's compute it manually for the "Age15_Suitability" variable:
+#Let's compute it manually for the "age15_suitability" variable:
 #t = Estimate / Std. Error
-t_Age15_Suitability <- mods$coefficients["Age15_Suitability", "Estimate"] / mods$coefficients["Age15_Suitability", "Std. Error"]
-t_Age15_Suitability
+t_age15_suitability <- mods$coefficients["age15_suitability", "Estimate"] / mods$coefficients["age15_suitability", "Std. Error"]
+t_age15_suitability
 
 #Compare values: We reject H0 if |t| > t_crit_upp
-abs(t_Age15_Suitability) > t_crit_upp
-#We reject H0, meaning that the Age15_Suitability is a significant predictor in our model
+abs(t_age15_suitability) > t_crit_upp
+#We reject H0, meaning that the age15_suitability is a significant predictor in our model
 
 
-#Hypothesis test for SexMale parameter
-#H0: beta_Sex = 0 (SexMale has no effect on Unemployment)
-#H1: beta_Sex != 0 (SexMale is a significant predictor)
+#Hypothesis test for sexMale parameter
+#H0: beta_sex = 0 (sexMale has no effect on Unemployment)
+#H1: beta_sex != 0 (sexMale is a significant predictor)
 
 #Extracting the t-statistic and p-value from the summary
-#["SexMale", 3] is the t-value, ["SexMale", 4] is the Pr(>|t|)
-#We look for the row "SexMale"
-beta_SexMale_test <- mods$coefficients["SexMale", 3]
-p_value_SexMale <- mods$coefficients["SexMale", 4]
+#["sexMale", 3] is the t-value, ["sexMale", 4] is the Pr(>|t|)
+#We look for the row "sexMale"
+beta_sexMale_test <- mods$coefficients["sexMale", 3]
+p_value_sexMale <- mods$coefficients["sexMale", 4]
 
 #Print the test statistic and p-value from R's calculation
-beta_SexMale_test
-p_value_SexMale
+beta_sexMale_test
+p_value_sexMale
 
-#Let's compute it manually for the "SexMale" variable:
+#Let's compute it manually for the "sexMale" variable:
 #t = Estimate / Std. Error
-t_SexMale <- mods$coefficients["SexMale", "Estimate"] / mods$coefficients["SexMale", "Std. Error"]
-t_SexMale
+t_sexMale <- mods$coefficients["sexMale", "Estimate"] / mods$coefficients["sexMale", "Std. Error"]
+t_sexMale
 
 #Compare values: We reject H0 if |t| > t_crit_upp
-abs(t_SexMale) > t_crit_upp
-#We reject H0, meaning that the Age15_Suitability is a significant predictor in our model
+abs(t_sexMale) > t_crit_upp
+#We reject H0, meaning that the age15_suitability is a significant predictor in our model
 
 ###############################
 # MODEL DIAGNOSTICS FOR THE FINAL MODEL
@@ -409,14 +450,14 @@ outliers <- which(cooks > threshold)
 data_clean <- mixedDfSubset[-outliers,]
 
 model_clean <- lm(
-  Lower_Unemployment_Rate ~ 
-    Segunda_Etapa_25_34 + Age15_Suitability + Middle_Unemployment_Rate + 
-    Upper_Unemployment_Rate + Sex + Year, data = data_clean
+  low_unemployment_rate ~ 
+    upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + sex + year, data = data_clean
 )
 summary(finalModel)
 summary(model_clean)
 
-#The model without the outliers has a larger R^2 and the variables Sex and Year become less important
+#The model without the outliers has a larger R^2 and the variables sex and year become less important
 #due to their high p-value. So, we can conclude that those variables were highly influenced by the outliers.
 
 ##########   RESULTS   ##########
@@ -448,9 +489,9 @@ train_data <- mixedDfSubset[train_index, ]
 test_data <- mixedDfSubset[-train_index, ]
 
 model_train <- lm(
-  Lower_Unemployment_Rate ~ 
-    Segunda_Etapa_25_34 + Age15_Suitability + Middle_Unemployment_Rate + 
-    Upper_Unemployment_Rate + Sex + Year, data = train_data
+  low_unemployment_rate ~ 
+    upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
+    high_unemployment_rate + sex + year, data = train_data
 )
 
 #Now let's do the predictions using the training model
@@ -462,7 +503,7 @@ final_confidence <- predict(model_train, newdata = test_data, interval = "confid
 
 #We will create a matrix showing the real values, the predicted values and both the confidence
 #and prediction intervals
-results_comparison <- cbind(Actual = test_data$Lower_Unemployment_Rate, 
+results_comparison <- cbind(Actual = test_data$low_unemployment_rate, 
                             Fit = final_intervals[,"fit"],
                             LWR_Prediction = final_intervals[,"lwr"],
                             UPR_Prediction = final_intervals[,"upr"],
