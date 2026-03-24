@@ -400,6 +400,25 @@ plot(finalModel,3)
 plot(finalModel,4)
 plot(finalModel,5)
 
+#We are going to remove the observation with large cook's distance to see the impact of them
+
+cooks <- cooks.distance(finalModel)
+threshold <- 4/nrow(mixedDfSubset)
+outliers <- which(cooks > threshold)
+
+data_clean <- mixedDfSubset[-outliers,]
+
+model_clean <- lm(
+  Lower_Unemployment_Rate ~ 
+    Segunda_Etapa_25_34 + Age15_Suitability + Middle_Unemployment_Rate + 
+    Upper_Unemployment_Rate + Sex + Year, data = data_clean
+)
+summary(finalModel)
+summary(model_clean)
+
+#The model without the outliers has a larger R^2 and the variables Sex and Year become less important
+#due to their high p-value. So, we can conclude that those variables were highly influenced by the outliers.
+
 ##########   RESULTS   ##########
 #The residuals appear randomly scattered around zero,
 #suggesting that the linearity assumption is reasonably satisfied.
