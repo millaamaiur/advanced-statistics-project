@@ -63,8 +63,8 @@ mixedDf <- mixedDf %>%
     high_activity_25_34 = Upper_Activity_Rate_25_34
   )
 
-# Mod1 using F1
-mod1 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
+# full_model using F1
+full_model <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
              low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
              upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
              age12_suitability + age15_suitability + mid_unemployment_rate + 
@@ -74,46 +74,46 @@ mod1 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 +
              mid_activity_25_64 + mid_activity_25_34 + 
              high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDf)
 
-#Plotting mod1
-plot(mod1)
+#Plotting full_model
+plot(full_model)
 
 # Summary 
-summary(mod1)
+summary(full_model)
 
 #Firstly we will detect and eliminate the noise
 ######Checking for outliers######
-plot(mod1,1)
+plot(full_model,1)
 
-#Now we will compute the outliers by using the formula of studentized residuals
-#This formula marks as outliers the values that have, We divide the error of 
+#Now we will compute the outlier_indicesby using the formula of studentized residuals
+#This formula marks as outlier_indices the values that have, We divide the error of 
 #each prediction by its estimated standard deviation calculated without that 
 #observation, adjusted for its level of influence, and if that formula surpasses the 
-#threshold of 3, it is marked as an outlier
-res_stud <- rstudent(mod1)
-outliers <- which(abs(res_stud) > 3)
+#cooks_threshold of 3, it is marked as an outlier
+studentized_residuals<- rstudent(full_model)
+studentized_outlier_indices<- which(abs(res_stud) > 3)
 print(outliers)
 
 ######Leverage points######
-plot(mod1,5)
-sort(cooks.distance(mod1))
-#We can see that firstly the observations 36, 371 could be outliers in the 
+plot(full_model,5)
+sort(cooks.distance(full_model))
+#We can see that firstly the observations 36, 371 could be outlier_indicesin the 
 #Residuals vs Fitted plot (line 43). 
 #Moreover, looking a the the Residuals vs Leverage plot (line 50), 
 #the values 36 and 394 could also be leverage points
-#Additionaly, in lines 48 and 49 we computed the outliers with the formula, with this
+#Additionaly, in lines 48 and 49 we computed the outlier_indiceswith the formula, with this
 #we can see that the observations 268, 271, 368, 370, 373 and 391 are also outliers.
 #We proceed with the elimination
 
-noise_names <- c("36", "268", "271", "368", "370", "371", "373", "391", "394")
+influential_row_names<- c("36", "268", "271", "368", "370", "371", "373", "391", "394")
 
 #Filter the original dataset finding the four values
 mixedDfSubset <- mixedDf[!(rownames(mixedDf) %in% noise_names), ]
 
 summary(mixedDfSubset)
 
-#Now that the outliers and leverage points have been erased, we will create again our model
+#Now that the outlier_indicesand leverage points have been erased, we will create again our model
 
-mod_clean <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
+full_model_cleaned <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
                   low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
                   upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
                   age12_suitability + age15_suitability + mid_unemployment_rate + 
@@ -122,7 +122,7 @@ mod_clean <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25
                   high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
                   mid_activity_25_64 + mid_activity_25_34 + 
                   high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDfSubset)
-summary(mod_clean)
+summary(full_model_cleaned)
 
 #####Backward elimination#####
 
@@ -130,18 +130,18 @@ summary(mod_clean)
 #the variables that could be relevant.
 #This function does the backward elimination process by iteratively removing predictors
 #in the model in order to optimise the AIC.
-reducedModel <- step(mod_clean, direction = "backward")
-summary(reducedModel)
+step_model <- step(full_model_cleaned, direction = "backward")
+summary(step_model)
 # Compare models using AIC and BIC - lowest is better
-AIC(mod_clean, reducedModel)
-BIC(mod_clean, reducedModel)
+AIC(full_model_cleaned, step_model)
+BIC(full_model_cleaned, step_model)
 #Both the AIC and BIC went down, meaning that the reduced model is better
 
 #We will plot now the Residuals vs Fitted plot
-plot(reducedModel, 1)
+plot(step_model, 1)
 #Kind of a linear trend
 #Now we will check the distribution of the residuals
-shapiro.test(residuals(reducedModel))
+shapiro.test(residuals(step_model))
 #Slightly below the standard significance level of 0.05 (0.04576), 
 #meaning that the residuals do not follow a normal distribution.
 #However, it is very close to the threshold, so we will assume the
@@ -152,58 +152,58 @@ shapiro.test(residuals(reducedModel))
 #of: alpha = 0.05
 
 #Firstly, we will take out the variable low_secondary_25_34 with p-value of 0.09949
-reducedModel2 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
+step_model2 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
                    upper_secondary_25_34 + higher_education_25_34 + age12_suitability + age15_suitability +
                    mid_unemployment_rate + high_unemployment_rate + low_employment_25_64 + 
                    low_employment_25_34 + mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
                    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
                    high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
-summary(reducedModel2)
-plot(reducedModel2,1)
-plot(reducedModel2,5)
+summary(step_model2)
+plot(step_model2,1)
+plot(step_model2,5)
 
 # Compare models again by using AIC and BIC
-AIC(reducedModel, reducedModel2)
-BIC(reducedModel, reducedModel2)
+AIC(step_model, step_model2)
+BIC(step_model, step_model2)
 #Although the AIC slightly increased (~ 1 unit more), the BIC also slightly decreased (by ~ 3 units)
 #For our purpose, we will choose the model with less variables
 
 #Delete higher_education_25_34 with p-value of 0.14719    
-reducedModel3 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
+step_model3 <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_55_64 + 
                       upper_secondary_25_34 + age12_suitability + age15_suitability + mid_unemployment_rate + 
                       high_unemployment_rate + low_employment_25_64 + low_employment_25_34 + 
                       mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
                       low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
                       high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
 
-summary(reducedModel3)
+summary(step_model3)
 #AIC and BIC tests
-AIC(reducedModel2, reducedModel3)
-BIC(reducedModel2, reducedModel3)
+AIC(step_model2, step_model3)
+BIC(step_model2, step_model3)
 #Now, no significant changes have occurred on the AIC, however, the BIC has decreased, meaning that
-#the reducedModel3 could be better, we will use this one.
+#the step_model3 could be better, we will use this one.
 
 #Delete low_secondary_25_64 with p-value of 0.072997
-reducedModel4 <- lm((low_unemployment_rate) ~ low_secondary_55_64 + upper_secondary_25_34 + 
+step_model4 <- lm((low_unemployment_rate) ~ low_secondary_55_64 + upper_secondary_25_34 + 
                       age12_suitability + age15_suitability + mid_unemployment_rate + 
                       high_unemployment_rate + low_employment_25_64 + low_employment_25_34 + 
                       mid_employment_25_64 + high_employment_25_64 + high_employment_25_34 +
                       low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
                       high_activity_25_64 + high_activity_25_34 + year, data = mixedDfSubset)
 
-summary(reducedModel4)
+summary(step_model4)
 #AIC and BIC tests
-AIC(reducedModel3, reducedModel4)
-BIC(reducedModel3, reducedModel4)
+AIC(step_model3, step_model4)
+BIC(step_model3, step_model4)
 #Finally, when deleting the low_secondary_25_64 predictor, both AIC and BIC increases drastically,
-#meaning that the reduced model isn't the most appropiate one. Then, we will take the reducedModel3
+#meaning that the reduced model isn't the most appropiate one. Then, we will take the step_model3
 #as our final model.
 
 #Checking Collinearity
-vif(reducedModel3)
+vif(step_model3)
 
 #The are lots of related variables that we will have to remove
-model_no_collinearity <- lm(
+collinearity_reduced_model_1<- lm(
   low_unemployment_rate ~ low_secondary_55_64 + upper_secondary_25_34 + 
     age12_suitability + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = mixedDfSubset
@@ -212,7 +212,7 @@ model_no_collinearity <- lm(
 summary(model_no_collinearity)
 #Now we can see that the low_secondary_55_64 predictor has a high p-value, we will see if we
 #have to delete it
-model_no_collinearity2 <- lm(
+collinearity_reduced_model_2<- lm(
   low_unemployment_rate ~ 
     upper_secondary_25_34 + age12_suitability + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = mixedDfSubset
@@ -223,17 +223,17 @@ BIC(model_no_collinearity, model_no_collinearity2)
 #Both AIC and BIC reduces, meaning that the second model is more appropiate than the other
 
 #Now we will also delete the variable age12_suitability as it has a p-value of 0.06713
-model_no_collinearity3 <- lm(
+collinearity_reduced_model_3 <- lm(
   low_unemployment_rate ~ 
     upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = mixedDfSubset
 )
-summary(model_no_collinearity3)
-AIC(model_no_collinearity2, model_no_collinearity3)
-BIC(model_no_collinearity2, model_no_collinearity3)
+summary(collinearity_reduced_model_3)
+AIC(model_no_collinearity2, collinearity_reduced_model_3)
+BIC(model_no_collinearity2, collinearity_reduced_model_3)
 #AIC increased ~ 1 unit and BIC decreased ~ 2 units, therefore, we will consider the model with
 #less variables
-finalModel <- model_no_collinearity3
+final_model<- collinearity_reduced_model_3
 
 #check the collinearity again (It's correct now)
 vif(finalModel)
@@ -246,7 +246,7 @@ confint(finalModel)
 # H1: At least one beta_i != 0
 
 #1. Obtain summary statistics
-mod_summary <- summary(finalModel)
+final_model_summary<- summary(finalModel)
 n <- nrow(mixedDfSubset)
 p <- length(coef(finalModel)) - 1
 
@@ -273,7 +273,7 @@ cat("F-statistic:", Fstat, "\nF-critical:", F_alpha, "\nReject H0:",
 
 ###### INFERENCE: T-TESTS ######
 #We extract the summary of our final model
-mods = summary(finalModel)
+final_model_coeff_summary= summary(finalModel)
 
 #The coefficients table includes Estimates, Std. Errors, t-values, and p-values
 mods$coefficients
@@ -443,13 +443,13 @@ plot(finalModel,5)
 
 #We are going to remove the observation with large cook's distance to see the impact of them
 
-cooks <- cooks.distance(finalModel)
-threshold <- 4/nrow(mixedDfSubset)
-outliers <- which(cooks > threshold)
+cooks_distances<- cooks.distance(finalModel)
+cooks_threshold<- 4/nrow(mixedDfSubset)
+cooks_outlier_indices <- which(cooks_distances> threshold)
 
 data_clean <- mixedDfSubset[-outliers,]
 
-model_clean <- lm(
+final_model_without_influential<- lm(
   low_unemployment_rate ~ 
     upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = data_clean
@@ -457,7 +457,7 @@ model_clean <- lm(
 summary(finalModel)
 summary(model_clean)
 
-#The model without the outliers has a larger R^2 and the variables sex and year become less important
+#The model without the outlier_indices has a larger R^2 and the variables sex and year become less important
 #due to their high p-value. So, we can conclude that those variables were highly influenced by the outliers.
 
 ##########   RESULTS   ##########
@@ -488,7 +488,7 @@ train_index <- sample(1:nrow(mixedDfSubset), 0.7 * nrow(mixedDfSubset))
 train_data <- mixedDfSubset[train_index, ]
 test_data <- mixedDfSubset[-train_index, ]
 
-model_train <- lm(
+training_model<- lm(
   low_unemployment_rate ~ 
     upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
     high_unemployment_rate + sex + year, data = train_data
