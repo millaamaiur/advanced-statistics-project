@@ -23,7 +23,7 @@ summary(mixedDf)
 dim(mixedDf)
 
 #Rename variables
-mixedDf <- mixedDf %>%
+mixedDataFrame <- mixedDf %>%
   rename(
     autonomous_community = CCAA,
     sex = Sex,
@@ -72,7 +72,7 @@ full_model <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_2
              mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
              high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
              mid_activity_25_64 + mid_activity_25_34 + 
-             high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDf)
+             high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDataframe)
 
 #Plotting full_model
 plot(full_model)
