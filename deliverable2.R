@@ -15,15 +15,15 @@ names(data1)
 names(data2)
 
 #Mixing both datasets
-mixedDf <- inner_join(data1, data2, by = c("CCAA", "Sex", "Year"))
+mixedDataFrame <- inner_join(data1, data2, by = c("CCAA", "Sex", "Year"))
 
 #Remove NAs values
-mixedDf <- na.omit(mixedDf)
-summary(mixedDf)
-dim(mixedDf)
+mixedDataFrame <- na.omit(mixedDataFrame)
+summary(mixedDataFrame)
+dim(mixedDataFrame)
 
 #Rename variables
-mixedDataFrame <- mixedDf %>%
+mixedDf <- mixedDataFrame %>%
   rename(
     autonomous_community = CCAA,
     sex = Sex,
@@ -63,7 +63,9 @@ mixedDataFrame <- mixedDf %>%
     high_activity_25_34 = Upper_Activity_Rate_25_34
   )
 
-# full_model using F1
+#We will
+
+#full_model using F1
 full_model <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
              low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
              upper_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
@@ -72,7 +74,7 @@ full_model <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_2
              mid_employment_25_64 + mid_employment_25_34 + high_employment_25_64 + 
              high_employment_25_34 + low_activity_25_64 + low_activity_25_34 +
              mid_activity_25_64 + mid_activity_25_34 + 
-             high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDataframe)
+             high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDf)
 
 #Plotting full_model
 plot(full_model)
