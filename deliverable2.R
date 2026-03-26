@@ -504,7 +504,7 @@ summary(collinearity_reduced_model_without_influential_2)
 
 
 
-#Now remove again all the values with p-value lower than: alpha = 0.05
+#Now remove again all the values with p-value higher than: alpha = 0.05
 summary(collinearity_reduced_model_without_influential_2)
 #Remove low_secondary_25_34, age12_suitability, high_employment_25_34, high_activity_25_34
 collinearity_reduced_model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
@@ -523,6 +523,161 @@ BIC(collinearity_reduced_model_without_influential_2, collinearity_reduced_model
 vif(collinearity_reduced_model_without_influential_3)
 
 definitive_final_model <- collinearity_reduced_model_without_influential_3
+
+###### INFERENCE: F-TEST ######
+
+# 1. Summary del modelo
+final_model_summary <- summary(definitive_final_model)
+
+# 2. Tamaños
+n <- nrow(data_clean)                         # número de observaciones
+p <- length(coef(definitive_final_model)) - 1 # número de variables (sin intercepto)
+
+# 3. Sumas de cuadrados
+TSS <- sum((data_clean$low_unemployment_rate - 
+              mean(data_clean$low_unemployment_rate))^2)
+
+RSS <- deviance(definitive_final_model)
+
+# 4. Grados de libertad
+df_num <- p
+df_den <- n - (p + 1)
+
+# 5. Estadístico F
+Fstat <- ((TSS - RSS)/df_num) / (RSS/df_den)
+
+# 6. Valor crítico (α = 0.05)
+F_alpha <- qf(0.05, df_num, df_den, lower.tail = FALSE)
+
+# 7. p-value
+p_val_F <- pf(Fstat, df_num, df_den, lower.tail = FALSE)
+
+# 8. Decisión
+reject_H0_F <- Fstat > F_alpha
+
+# 9. Resultado
+cat("F-statistic:", Fstat,
+    "\nF-critical:", F_alpha,
+    "\nReject H0:", reject_H0_F,
+    "\nP-value:", p_val_F)
+
+
+
+##############################
+# MODEL
+##############################
+
+collinearity_reduced_model_without_influential_3 <- lm(
+  low_unemployment_rate ~ low_secondary_25_64 +
+    upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+    age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+    low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
+    mid_employment_25_34 +
+    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+    high_activity_25_64 + year,
+  data = data_clean
+)
+
+summary(collinearity_reduced_model_without_influential_3)
+
+# Model comparison
+AIC(collinearity_reduced_model_without_influential_2,
+    collinearity_reduced_model_without_influential_3)
+
+BIC(collinearity_reduced_model_without_influential_2,
+    collinearity_reduced_model_without_influential_3)
+
+# Multicollinearity
+vif(collinearity_reduced_model_without_influential_3)
+
+# Final model
+definitive_final_model <- collinearity_reduced_model_without_influential_3
+
+
+##############################
+# F-TEST (GLOBAL SIGNIFICANCE)
+##############################
+
+# 1. Summary
+final_model_summary <- summary(definitive_final_model)
+
+# 2. Sizes
+n <- nrow(data_clean)
+p <- length(coef(definitive_final_model)) - 1
+
+# 3. Sums of squares
+TSS <- sum((data_clean$low_unemployment_rate -
+              mean(data_clean$low_unemployment_rate))^2)
+
+RSS <- deviance(definitive_final_model)
+
+# 4. Degrees of freedom
+df_num <- p
+df_den <- n - (p + 1)
+
+# 5. F-statistic
+Fstat <- ((TSS - RSS)/df_num) / (RSS/df_den)
+
+# 6. Critical value
+F_alpha <- qf(0.05, df_num, df_den, lower.tail = FALSE)
+
+# 7. p-value
+p_val_F <- pf(Fstat, df_num, df_den, lower.tail = FALSE)
+
+# 8. Decision
+reject_H0_F <- Fstat > F_alpha
+
+# 9. Result
+cat("F-statistic:", Fstat,
+    "\nF-critical:", F_alpha,
+    "\nReject H0:", reject_H0_F,
+    "\nP-value:", p_val_F)
+
+
+##############################
+# T-TEST (INDIVIDUAL VARIABLES)
+##############################
+
+# Coefficient table
+coef_table <- summary(definitive_final_model)$coefficients
+
+# Degrees of freedom
+df <- definitive_final_model$df.residual
+
+# Critical value (two-tailed, alpha = 0.05)
+t_crit <- qt(0.025, df, lower.tail = FALSE)
+
+cat("\n\nT-TEST RESULTS:\n")
+
+# Loop through all variables
+for (var in rownames(coef_table)) {
+  
+  estimate <- coef_table[var, "Estimate"]
+  std_error <- coef_table[var, "Std. Error"]
+  t_value <- estimate / std_error
+  p_value <- coef_table[var, "Pr(>|t|)"]
+  
+  decision <- abs(t_value) > t_crit
+  
+  cat("\n-----------------------------",
+      "\nVariable:", var,
+      "\nEstimate:", estimate,
+      "\nStd Error:", std_error,
+      "\nt-value:", t_value,
+      "\np-value:", p_value,
+      "\nSignificant (|t| > t_crit):", decision,
+      "\n")
+}
+
+
+
+
+
+
+
+
+
+
 
 ##########   RESULTS   ##########
 #The residuals appear randomly scattered around zero,
