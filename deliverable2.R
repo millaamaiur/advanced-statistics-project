@@ -463,13 +463,13 @@ model_without_influential_1<- lm(
     high_activity_25_64 + high_activity_25_34 + sex + year, data = data_clean
 )
 summary(model_without_influential_1)
-plot(model_without_influential_1)
+#plot(model_without_influential_1)
 
 #Now we have a model without the noise on the upper tail, we will do again the model simplification
 
 model_without_influential_2 <- step(model_without_influential_1, direction = "backward")
 summary(model_without_influential_2)
-plot(model_without_influential_2)
+#plot(model_without_influential_2)
 # Compare models using AIC and BIC - lowest is better
 AIC(model_without_influential_1, model_without_influential_2)
 BIC(model_without_influential_1, model_without_influential_2)
@@ -559,11 +559,11 @@ training_model<- lm(
 )
 
 #Now let's do the predictions using the training model
-predictions <- predict(model_train, newdata = test_data)
+predictions <- predict(training_model, newdata = test_data)
 
 #Let's compute the prediction and confidence intervals
-final_intervals <- predict(model_train, newdata = test_data, interval = "prediction")
-final_confidence <- predict(model_train, newdata = test_data, interval = "confidence")
+final_intervals <- predict(training_model, newdata = test_data, interval = "prediction")
+final_confidence <- predict(training_model, newdata = test_data, interval = "confidence")
 
 #We will create a matrix showing the real values, the predicted values and both the confidence
 #and prediction intervals
