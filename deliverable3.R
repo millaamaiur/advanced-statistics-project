@@ -110,22 +110,6 @@ full_model <- multinom(target_employment ~ low_secondary_25_64 + low_secondary_2
             
 summary(full_model)
 
-#Create a reduced model with predictors selected because there are theoricall relevant 
-#in the linear regression model
-reduced_model <- multinom(target_employment ~ higher_secondary_25_34 + age15_suitability + 
-                            mid_unemployment_rate + higher_unemployment_rate + sex + year,
-                          data = transformedDataFrame)
-
-summary(reduced_model)
-
-#Compare full model with reduced model 
-AIC(full_model, reduced_model)
-
-reduced_coefficients <- summary(reduced_model)$coefficients
-reduced_standard_errors <- summary(reduced_model)$standard.errors
-
-# The AIC of the full model is significantly lower than that of the reduced model.
-# This indicates that the full model provides a much better fit
 
 # coefficients and standard errors
 coefs <- summary(full_model)$coefficients
@@ -135,8 +119,324 @@ ses   <- summary(full_model)$standard.errors
 z <- coefs / ses
 
 # two-sided p-values
-p <- 2 * (1 - pnorm(abs(z)))
+p <- 2 * pnorm(abs(z), lower.tail = FALSE)
 p  
+
+# We will now try to discard variables that may have a big collinearity between them, because
+# we can see that many variables have a really low p-value (so close to 0)
+# For that, we will perform the same model but with linear regression, just so we are able
+# to use the function vif and discard high vif variables
+
+aux_model <- lm(higher_employment_25_34 ~ low_secondary_25_64 + low_secondary_25_34 + 
+                         low_secondary_55_64 + higher_secondary_25_64 + higher_secondary_25_34 + 
+                         higher_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
+                         age12_suitability + age15_suitability + mid_unemployment_rate + 
+                         higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                         mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                         low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                         mid_activity_25_64 + mid_activity_25_34 + 
+                         higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model)
+#Eliminate higher_education_25_34
+reduced_model1 <- multinom(target_employment ~ low_secondary_25_64 + low_secondary_25_34 + 
+                         low_secondary_55_64 + higher_secondary_25_64 + higher_secondary_25_34 + 
+                         higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                         age12_suitability + age15_suitability + mid_unemployment_rate + 
+                         higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                         mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                         low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                         mid_activity_25_64 + mid_activity_25_34 + 
+                         higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model1)
+
+#Compare the full model with reduced model 
+AIC(full_model, reduced_model1)
+BIC(full_model, reduced_model1)
+#AIC and BIC lower, reduced better
+
+aux_model2 <- lm(higher_employment_25_34 ~ low_secondary_25_64 + low_secondary_25_34 + 
+                  low_secondary_55_64 + higher_secondary_25_64 + higher_secondary_25_34 + 
+                  higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                  age12_suitability + age15_suitability + mid_unemployment_rate + 
+                  higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                  mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                  low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                  mid_activity_25_64 + mid_activity_25_34 + 
+                  higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model2)
+#Eliminate low_secondary_55_64
+reduced_model2 <- multinom(target_employment ~ low_secondary_25_64 + low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                             mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model2)
+
+#Compare previous model with reduced model 
+AIC(reduced_model1, reduced_model2)
+BIC(reduced_model1, reduced_model2)
+#AIC and BIC lower, reduced better
+
+aux_model3 <- lm(higher_employment_25_34 ~ low_secondary_25_64 + low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                   mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model3)
+
+#Eliminate low_secondary_25_64
+
+reduced_model3 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                             mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model3)
+
+#Compare previous model with reduced model 
+AIC(reduced_model2, reduced_model3)
+BIC(reduced_model2, reduced_model3)
+#AIC a bit higher, but BIC significantly lower, reduced model better
+
+aux_model4 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                   mid_employment_25_64 + mid_employment_25_34 + higher_employment_25_64 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model4)
+
+#Eliminate higher_employment_25_64
+
+reduced_model4 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                             mid_employment_25_64 + mid_employment_25_34 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model4)
+
+#Compare previous model with reduced model 
+AIC(reduced_model3, reduced_model4)
+BIC(reduced_model3, reduced_model4)
+#AIC and BIC lower, reduced better
+
+aux_model5 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                   mid_employment_25_64 + mid_employment_25_34 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model5)
+
+#Eliminate mid_employment_25_64
+
+reduced_model5 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                             mid_employment_25_34 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model5)
+
+#Compare previous model with reduced model 
+AIC(reduced_model4, reduced_model5)
+BIC(reduced_model4, reduced_model5)
+#AIC and BIC lower, reduced better
+
+aux_model6 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_64 + low_employment_25_34 +
+                   mid_employment_25_34 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model6)
+
+#Eliminate low_employment_25_64
+
+reduced_model6 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_25_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_34 +
+                             mid_employment_25_34 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model6)
+
+#Compare previous model with reduced model 
+AIC(reduced_model5, reduced_model6)
+BIC(reduced_model5, reduced_model6)
+#AIC and BIC lower, reduced better
+
+aux_model7 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_25_64  + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_34 +
+                   mid_employment_25_34 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model7)
+
+#Eliminate higher_education_25_64
+
+reduced_model7 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_34 +
+                             mid_employment_25_34 + 
+                             low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model7)
+
+#Compare previous model with reduced model 
+AIC(reduced_model6, reduced_model7)
+BIC(reduced_model6, reduced_model7)
+#AIC is more or less the same, but BIC decreased, reduced better
+
+aux_model8 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_34 +
+                   mid_employment_25_34 + 
+                   low_unemployment_rate + low_activity_25_64 + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model8)
+
+#Eliminate low_activity_25_64
+
+reduced_model8 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + mid_unemployment_rate + 
+                             higher_unemployment_rate + low_employment_25_34 +
+                             mid_employment_25_34 + 
+                             low_unemployment_rate + low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model8)
+
+#Compare previous model with reduced model 
+AIC(reduced_model7, reduced_model8)
+BIC(reduced_model7, reduced_model8)
+#Both AIC and BIC decreased, reduced model is better
+
+aux_model9 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_34 +
+                   mid_employment_25_34 + 
+                   low_unemployment_rate + low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model9)
+
+#Eliminate low_unemployment_rate 
+
+reduced_model9 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + 
+                             higher_unemployment_rate + low_employment_25_34 +
+                             mid_employment_25_34 + mid_unemployment_rate +
+                             low_activity_25_34 +
+                             mid_activity_25_64 + mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model9)
+
+#Compare previous model with reduced model 
+AIC(reduced_model8, reduced_model9)
+BIC(reduced_model8, reduced_model9)
+#Both AIC and BIC decreased, reduced model is better
+
+aux_model10 <- lm(higher_employment_25_34 ~ low_secondary_25_34 + 
+                   higher_secondary_25_64 + higher_secondary_25_34 + 
+                   higher_secondary_55_64 + higher_education_55_64 +
+                   age12_suitability + age15_suitability + mid_unemployment_rate + 
+                   higher_unemployment_rate + low_employment_25_34 +
+                   mid_employment_25_34 + 
+                   low_activity_25_34 +
+                   mid_activity_25_64 + mid_activity_25_34 + 
+                   higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+vif(aux_model10)
+
+#Eliminate mid_activity_25_64 
+
+reduced_model10 <- multinom(target_employment ~ low_secondary_25_34 + 
+                             higher_secondary_25_64 + higher_secondary_25_34 + 
+                             higher_secondary_55_64 + higher_education_55_64 +
+                             age12_suitability + age15_suitability + 
+                             higher_unemployment_rate + low_employment_25_34 +
+                             mid_employment_25_34 + mid_unemployment_rate +
+                             low_activity_25_34 +
+                             mid_activity_25_34 + 
+                             higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
+
+summary(reduced_model10)$standard.errors
+
+#Compare previous model with reduced model 
+AIC(reduced_model9, reduced_model10)
+BIC(reduced_model9, reduced_model10)
+#The AIC increased ~ 3 units, and the BIC decreased ~ 5, we will take the reduced model
+
+
+####Variable selection, looking at p-value####
+
+# coefficients and standard errors
+reduced_model_coefs <- summary(reduced_model10)$coefficients
+reduced_model_ses   <- summary(reduced_model10)$standard.errors
+
+# Wald z statistics
+z_reduced_mod <- reduced_model_coefs / reduced_model_ses
+
+# two-sided p-values
+p_reduced_mod <- 2 * pnorm(abs(z_reduced_mod), lower.tail = FALSE)
+p_reduced_mod  
+
 
 
 ###############################
