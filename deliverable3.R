@@ -564,27 +564,33 @@ p_reduced_model14
 # HYPOTHESIS TESTING
 ###############################
 
-# Hypotheses:
-# H0: The reduced model is sufficient.
-# H1: The full model provides a significantly better fit.
+# We compare the final model with the full model using a Likelihood Ratio Test
 
-lambda <- reduced_model$deviance - full_model$deviance
-dof <- reduced_model$edf - full_model$edf
+# H0: The reduced model is sufficient
+# H1: The full model provides a significantly better fit
 
-# Critical value for alpha = 0.05
+# Compute the test statistic 
+lambda <- reduced_model14$deviance - full_model$deviance
+
+# Degrees of freedom
+dof <- full_model$edf - reduced_model14$edf
+
+# Critical value (Chi-squared distribution, alpha = 0.05)
 chi_critical <- qchisq(0.95, df = dof)
 
-# p-value of the test
+# p-value
 p_value_lrt <- pchisq(lambda, df = dof, lower.tail = FALSE)
 
-# Likelihood Ratio Test results
 lambda
 dof
 chi_critical
 p_value_lrt
 
+
+# Decision
 if (lambda > chi_critical) {
-  print("Reject H0: the full model fits significantly better than the reduced model.\n")
+  print("Reject H0: the full model fits significantly better than the reduced model.")
 } else {
-  print("Do not reject H0: the reduced model is sufficient.\n")
+  print("Do not reject H0: the reduced model is sufficient.")
 }
+
