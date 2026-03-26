@@ -437,7 +437,128 @@ z_reduced_mod <- reduced_model_coefs / reduced_model_ses
 p_reduced_mod <- 2 * pnorm(abs(z_reduced_mod), lower.tail = FALSE)
 p_reduced_mod  
 
+# We remove higher_secondary_55_64 because it has high p-values in both categories
+reduced_model11 <- multinom(target_employment ~ low_secondary_25_34 + 
+                            higher_secondary_25_64 + higher_secondary_25_34 + 
+                            higher_education_55_64 +
+                            age12_suitability + age15_suitability + 
+                            higher_unemployment_rate + low_employment_25_34 +
+                            mid_employment_25_34 + mid_unemployment_rate +
+                            low_activity_25_34 +
+                            mid_activity_25_34 + 
+                            higher_activity_25_64 + higher_activity_25_34 + sex + year, data = transformedDataFrame)
 
+
+# After removing it, both AIC and BIC decrease, indicating an 
+#improvement in the model.AIC(reduced_model10, reduced_mod11)
+AIC(reduced_model10, reduced_model11)
+BIC(reduced_model10, reduced_model11)
+
+# coefficients and standard errors
+reduced_model11_coefs <- summary(reduced_model11)$coefficients
+reduced_model11_ses   <- summary(reduced_model11)$standard.errors
+
+# Wald statistics
+z_reduced_model11 <- reduced_model11_coefs / reduced_model11_ses
+
+# p-values
+p_reduced_model11 <- 2 * pnorm(abs(z_reduced_model11), lower.tail = FALSE)
+p_reduced_model11
+
+# We remove higher_secondary_25_64 because it has high p-values in both categories
+reduced_model12 <- multinom(
+  target_employment ~ low_secondary_25_34 + 
+    higher_secondary_25_34 + 
+    higher_education_55_64 +
+    age12_suitability + age15_suitability + 
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    low_activity_25_34 +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model12)
+
+# We remove higher_secondary_25_64 because it is not significant in both categories.
+# If AIC and BIC decrease, the new model is preferred.
+AIC(reduced_model11, reduced_model12)
+BIC(reduced_model11, reduced_model12)
+
+reduced_model12_coefs <- summary(reduced_model12)$coefficients
+reduced_model12_ses   <- summary(reduced_model12)$standard.errors
+
+z_reduced_model12 <- reduced_model12_coefs / reduced_model12_ses
+
+p_reduced_model12 <- 2 * pnorm(abs(z_reduced_model12), lower.tail = FALSE)
+p_reduced_model12
+
+# We remove age12_suitability because it has high p-values in both categories
+reduced_model13 <- multinom(
+  target_employment ~ low_secondary_25_34 + 
+    higher_secondary_25_34 + 
+    higher_education_55_64 +
+    age15_suitability + 
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    low_activity_25_34 +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model13)
+
+# We remove age12_suitability because it is not significant in both categories.
+# Both AIC and BIC decrease, indicating an improvement in the model.
+AIC(reduced_model12, reduced_model13)
+BIC(reduced_model12, reduced_model13)
+
+# coefficients and standard errors
+reduced_model13_coefs <- summary(reduced_model13)$coefficients
+reduced_model13_ses   <- summary(reduced_model13)$standard.errors
+
+# Wald statistics
+z_reduced_model13 <- reduced_model13_coefs / reduced_model13_ses
+
+# p-values
+p_reduced_model13 <- 2 * pnorm(abs(z_reduced_model13), lower.tail = FALSE)
+p_reduced_model13
+
+# We remove low_activity_25_34 because it has high p-values in both categories
+reduced_model14 <- multinom(
+  target_employment ~ low_secondary_25_34 + 
+    higher_secondary_25_34 + 
+    higher_education_55_64 +
+    age15_suitability + 
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model14)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model13, reduced_model14)
+BIC(reduced_model13, reduced_model14)
+
+# coefficients and standard errors
+reduced_model14_coefs <- summary(reduced_model14)$coefficients
+reduced_model14_ses   <- summary(reduced_model14)$standard.errors
+
+# Wald statistics
+z_reduced_model14 <- reduced_model14_coefs / reduced_model14_ses
+
+# p-values
+p_reduced_model14 <- 2 * pnorm(abs(z_reduced_model14), lower.tail = FALSE)
+p_reduced_model14
+
+# Some variables are not significant in either category, so we are stopping the process. Continuing could worsen the model.
+# We have therefore selected reduced_model14 as the final model.
 
 ###############################
 # HYPOTHESIS TESTING
@@ -467,12 +588,3 @@ if (lambda > chi_critical) {
 } else {
   print("Do not reject H0: the reduced model is sufficient.\n")
 }
-
-
-
-
-coefs <- summary(full_model)$coefficients
-ses   <- summary(full_model)$standard.errors
-z <- coefs / ses
-p <- 2 * (1 - pnorm(abs(z)))
-p
