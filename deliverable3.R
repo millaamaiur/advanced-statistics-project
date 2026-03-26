@@ -68,10 +68,11 @@ mixedDataFrame <- mixedDf %>%
     higher_activity_25_34 = Upper_Activity_Rate_25_34
   )
 
-'We will transform the higher_employment_25_34 to a categorical variable, in order to
-predict the probability of a region falling into a specific employment performance 
-category (Low, Medium, or High) based on educational and demographic factors
-'
+# We will transform higher_employment_25_34 into a categorical variable
+# in order to predict the probability of a region falling into a specific
+# employment performance category (Low, Medium, or High) based on
+# educational and demographic factors.
+
 
 #Firstly, we will define the three groups, for that, we are going to separate the observations 
 #in three groups
@@ -92,7 +93,11 @@ transformedDataFrame$target_employment <- relevel(transformedDataFrame$target_em
 
 colnames(transformedDataFrame)
 
-#Run the model
+###############################
+# MODEL SELECTION
+###############################
+
+# First, we fit a full multinomial logistic regression model with all predictors
 full_model <- multinom(target_employment ~ low_secondary_25_64 + low_secondary_25_34 + 
                low_secondary_55_64 + higher_secondary_25_64 + higher_secondary_25_34 + 
                higher_secondary_55_64 + higher_education_25_64 + higher_education_25_34 + higher_education_55_64 +
@@ -105,6 +110,23 @@ full_model <- multinom(target_employment ~ low_secondary_25_64 + low_secondary_2
             
 summary(full_model)
 
+#Create a reduced model with predictors selected because there are theoricall relevant 
+#in the linear regression model
+reduced_model <- multinom(target_employment ~ higher_secondary_25_34 + age15_suitability + 
+                            mid_unemployment_rate + higher_unemployment_rate + sex + year,
+                          data = transformedDataFrame)
+
+summary(reduced_model)
+
+#Compare full model with reduced model 
+AIC(full_model, reduced_model)
+
+reduced_coefficients <- summary(reduced_model)$coefficients
+reduced_standard_errors <- summary(reduced_model)$standard.errors
+
+# The AIC of the full model is significantly lower than that of the reduced model.
+# This indicates that the full model provides a much better fit
+
 # coefficients and standard errors
 coefs <- summary(full_model)$coefficients
 ses   <- summary(full_model)$standard.errors
@@ -115,3 +137,42 @@ z <- coefs / ses
 # two-sided p-values
 p <- 2 * (1 - pnorm(abs(z)))
 p  
+
+
+###############################
+# HYPOTHESIS TESTING
+###############################
+
+# Hypotheses:
+# H0: The reduced model is sufficient.
+# H1: The full model provides a significantly better fit.
+
+lambda <- reduced_model$deviance - full_model$deviance
+dof <- reduced_model$edf - full_model$edf
+
+# Critical value for alpha = 0.05
+chi_critical <- qchisq(0.95, df = dof)
+
+# p-value of the test
+p_value_lrt <- pchisq(lambda, df = dof, lower.tail = FALSE)
+
+# Likelihood Ratio Test results
+lambda
+dof
+chi_critical
+p_value_lrt
+
+if (lambda > chi_critical) {
+  print("Reject H0: the full model fits significantly better than the reduced model.\n")
+} else {
+  print("Do not reject H0: the reduced model is sufficient.\n")
+}
+
+
+
+
+coefs <- summary(full_model)$coefficients
+ses   <- summary(full_model)$standard.errors
+z <- coefs / ses
+p <- 2 * (1 - pnorm(abs(z)))
+p
