@@ -689,28 +689,33 @@ for (var in rownames(coef_table)) {
 #linear regression model are reasonably satisfied
 
 #Normality test for residuals
-shapiro.test(residuals(finalModel))
+shapiro.test(residuals(definitive_final_model))
 #Looking at the results of the shapiro test we could say that the residuals don't follow a normal distribution.
 #However, we've analyzed the Q-Q plot and concluded that they follow a normal distribution with
 #a small deviation on the upper tail
 
 
 #Confidence interval of the final model
-confint(finalModel)
+confint(definitive_final_model)
 
 ##########   TRAINING/TESTING   ##########
 
 #We are going to split the dataset in 70% Training and 30% Testing
 
-train_index <- sample(1:nrow(mixedDfSubset), 0.7 * nrow(mixedDfSubset))
+train_index <- sample(1:nrow(data_clean), 0.7 * nrow(data_clean))
 
-train_data <- mixedDfSubset[train_index, ]
-test_data <- mixedDfSubset[-train_index, ]
+train_data <- data_clean[train_index, ]
+test_data <- data_clean[-train_index, ]
 
 training_model<- lm(
-  low_unemployment_rate ~ 
-    upper_secondary_25_34 + age15_suitability + mid_unemployment_rate + 
-    high_unemployment_rate + sex + year, data = train_data
+  low_unemployment_rate ~ low_secondary_25_64 +
+    upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+    age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+    low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
+    mid_employment_25_34 +
+    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+    high_activity_25_64 + year,
+  data = train_data
 )
 
 #Now let's do the predictions using the training model
