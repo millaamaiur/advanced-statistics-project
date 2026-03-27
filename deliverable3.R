@@ -557,7 +557,209 @@ z_reduced_model14 <- reduced_model14_coefs / reduced_model14_ses
 p_reduced_model14 <- 2 * pnorm(abs(z_reduced_model14), lower.tail = FALSE)
 p_reduced_model14
 
-# Some variables are not significant in either category, so we are stopping the process. Continuing could worsen the model.
+# Reduced model removing low_secondary_25_34 (p-values: 0.3111904, 0.4598928)
+reduced_model15 <- multinom(
+  target_employment ~ 
+    higher_secondary_25_34 + 
+    higher_education_55_64 +
+    age15_suitability + 
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model15)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model14, reduced_model15)
+BIC(reduced_model14, reduced_model15)
+
+# coefficients and standard errors
+reduced_model15_coefs <- summary(reduced_model15)$coefficients
+reduced_model15_ses   <- summary(reduced_model15)$standard.errors
+
+# Wald statistics
+z_reduced_model15 <- reduced_model15_coefs / reduced_model15_ses
+
+# p-values
+p_reduced_model15 <- 2 * pnorm(abs(z_reduced_model15), lower.tail = FALSE)
+p_reduced_model15
+
+# Reduced model removing age15_suitability (p-values: 0.3009550, 0.9957435)
+reduced_model16 <- multinom(
+  target_employment ~ 
+    higher_secondary_25_34 + 
+    higher_education_55_64 +
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model16)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model15, reduced_model16)
+BIC(reduced_model15, reduced_model16)
+
+# coefficients and standard errors
+reduced_model16_coefs <- summary(reduced_model16)$coefficients
+reduced_model16_ses   <- summary(reduced_model16)$standard.errors
+
+# Wald statistics
+z_reduced_model16 <- reduced_model16_coefs / reduced_model16_ses
+
+# p-values
+p_reduced_model16 <- 2 * pnorm(abs(z_reduced_model16), lower.tail = FALSE)
+p_reduced_model16
+
+# Reduced model removing higher_secondary_25_34 (p-values: 0.3962884, 0.3598374)
+reduced_model17 <- multinom(
+  target_employment ~
+    higher_education_55_64 +
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_64 + higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model17)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model16, reduced_model17)
+BIC(reduced_model16, reduced_model17)
+
+# coefficients and standard errors
+reduced_model17_coefs <- summary(reduced_model17)$coefficients
+reduced_model17_ses   <- summary(reduced_model17)$standard.errors
+
+# Wald statistics
+z_reduced_model17 <- reduced_model17_coefs / reduced_model17_ses
+
+# p-values
+p_reduced_model17 <- 2 * pnorm(abs(z_reduced_model17), lower.tail = FALSE)
+p_reduced_model17
+
+# Reduced model removing higher_activity_25_64 (p-values: 0.8410907, 0.1909415)
+reduced_model18 <- multinom(
+  target_employment ~
+    higher_education_55_64 +
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model18)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model17, reduced_model18)
+BIC(reduced_model17, reduced_model18)
+
+# coefficients and standard errors
+reduced_model18_coefs <- summary(reduced_model18)$coefficients
+reduced_model18_ses   <- summary(reduced_model18)$standard.errors
+
+# Wald statistics
+z_reduced_model18 <- reduced_model18_coefs / reduced_model18_ses
+
+# p-values
+p_reduced_model18 <- 2 * pnorm(abs(z_reduced_model18), lower.tail = FALSE)
+p_reduced_model18
+
+# Reduced model removing higher_education_55_64 (p-values: 0.1376453, 0.1019156)
+reduced_model19 <- multinom(
+  target_employment ~
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    mid_activity_25_34 + 
+    higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model19)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model18, reduced_model19)
+BIC(reduced_model18, reduced_model19)
+
+# coefficients and standard errors
+reduced_model19_coefs <- summary(reduced_model19)$coefficients
+reduced_model19_ses   <- summary(reduced_model19)$standard.errors
+
+# Wald statistics
+z_reduced_model19 <- reduced_model19_coefs / reduced_model19_ses
+
+# p-values
+p_reduced_model19 <- 2 * pnorm(abs(z_reduced_model19), lower.tail = FALSE)
+p_reduced_model19
+
+# Reduced model removing mid_activity_25_34 (p-values: 0.05120705, 0.06619601)
+reduced_model20 <- multinom(
+  target_employment ~
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_employment_25_34 + mid_unemployment_rate +
+    higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model20)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# AIC is more or less the same, but the BIC decreased significantly, we keep the reduced model
+AIC(reduced_model19, reduced_model20)
+BIC(reduced_model19, reduced_model20)
+
+# coefficients and standard errors
+reduced_model20_coefs <- summary(reduced_model20)$coefficients
+reduced_model20_ses   <- summary(reduced_model20)$standard.errors
+
+# Wald statistics
+z_reduced_model20 <- reduced_model20_coefs / reduced_model20_ses
+
+# p-values
+p_reduced_model20 <- 2 * pnorm(abs(z_reduced_model20), lower.tail = FALSE)
+p_reduced_model20
+
+# Reduced model removing mid_employment_25_34 (p-values: 0.08377569, 0.30804620)
+reduced_model21 <- multinom(
+  target_employment ~
+    higher_unemployment_rate + low_employment_25_34 +
+    mid_unemployment_rate +
+    higher_activity_25_34 + sex + year,
+  data = transformedDataFrame
+)
+
+summary(reduced_model21)
+
+# We remove low_activity_25_34 because it is not significant in both categories.
+# Both AIC and BIC decrease significantly, indicating a better model fit.
+AIC(reduced_model20, reduced_model21)
+BIC(reduced_model20, reduced_model21)
+
+# coefficients and standard errors
+reduced_model21_coefs <- summary(reduced_model21)$coefficients
+reduced_model21_ses   <- summary(reduced_model21)$standard.errors
+
+# Wald statistics
+z_reduced_model21 <- reduced_model21_coefs / reduced_model21_ses
+
+# p-values
+p_reduced_model21 <- 2 * pnorm(abs(z_reduced_model21), lower.tail = FALSE)
+p_reduced_model21
+
+# All the variables remaining have a p-value smaller than 0.05 in at least one category, 
+#so we are stopping the process. Continuing could worsen the model.
 # We have therefore selected reduced_model14 as the final model.
 
 ###############################
@@ -570,10 +772,10 @@ p_reduced_model14
 # H1: The full model provides a significantly better fit
 
 # Compute the test statistic 
-lambda <- reduced_model14$deviance - full_model$deviance
+lambda <- reduced_model21$deviance - full_model$deviance
 
 # Degrees of freedom
-dof <- full_model$edf - reduced_model14$edf
+dof <- full_model$edf - reduced_model21$edf
 
 # Critical value (Chi-squared distribution, alpha = 0.05)
 chi_critical <- qchisq(0.95, df = dof)
@@ -593,4 +795,3 @@ if (lambda > chi_critical) {
 } else {
   print("Do not reject H0: the reduced model is sufficient.")
 }
-
