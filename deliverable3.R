@@ -24,7 +24,7 @@ summary(mixedDf)
 dim(mixedDf)
 
 #We will transform the Sex variable into a binary
-mixedDf$Sex <- ifelse(mixedDf$Sex == "Male", 1, 0)
+mixedDf$Sex <- factor(mixedDf$Sex, levels = c("Female", "Male"))
 mixedDf$Sex
 head(mixedDf)
 #Rename variables
@@ -761,7 +761,7 @@ p_reduced_model21
 # All the variables remaining have a p-value smaller than 0.05 in at least one category, 
 #so we are stopping the process. Continuing could worsen the model.
 # We have therefore selected reduced_model14 as the final model.
-
+final_model <- reduced_model21
 ###############################
 # HYPOTHESIS TESTING
 ###############################
@@ -772,10 +772,10 @@ p_reduced_model21
 # H1: The full model provides a significantly better fit
 
 # Compute the test statistic 
-lambda <- reduced_model21$deviance - full_model$deviance
+lambda <- final_model$deviance - full_model$deviance
 
 # Degrees of freedom
-dof <- full_model$edf - reduced_model21$edf
+dof <- full_model$edf - final_model$edf
 
 # Critical value (Chi-squared distribution, alpha = 0.05)
 chi_critical <- qchisq(0.95, df = dof)
@@ -795,3 +795,29 @@ if (lambda > chi_critical) {
 } else {
   print("Do not reject H0: the reduced model is sufficient.")
 }
+
+
+######Predictions  of new observations######
+prediction_data <- data.frame(
+                   higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10),
+                   low_employment_25_34 =     c(45.0, 13, 13, 47.5, 25),
+                   mid_unemployment_rate =    c(15.2, 8, 8, 20.5, 8),
+                   higher_activity_25_34 =    c(88, 95, 95, 86.3, 90),
+                   sex = factor(c("Male","Female", "Male", "Male", "Female"), levels = c("Female", "Male")),
+                   year =                     c(2019, 2018, 2018, 2014, 2023)
+                  )
+
+prediction <- predict(final_model, 
+        newdata = prediction_data,
+        "probs")
+
+results_table <- cbind(prediction_data, prediction)
+print(results_table)
+
+#In these predictions, we can see different cases where all types of classes are predicted, LOW, MEDIUM
+#and HIGH. On the second and the third observations, we used the same values, except for sex, 
+#watching how the sex affects to the probability of falling in the HIGH group, meaning that
+#being male significantly increases the probability of falling into the HIGH group compared to being 
+#female, even when all other educational and economic variables remain constant. This demostrates
+#that sex is a key variable in our model for reaching the highest employment performance category.
+#This explains the really low p-value of this variable when we computed it.
