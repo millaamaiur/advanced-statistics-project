@@ -1,3 +1,8 @@
+
+##################################################
+################ INITIAL SETUP ###################
+##################################################
+
 #Set the same seed
 set.seed(123)
 
@@ -5,6 +10,10 @@ library(tidyverse)
 library(dplyr)
 library(MASS)
 library(car)
+
+##################################################
+################ DATA PREPARATION ################
+##################################################
 
 data1 <- read.csv("./dataset1.csv")
 data2 <- read.csv("./dataset2.csv")
@@ -63,7 +72,10 @@ mixedDf <- mixedDataFrame %>%
     high_activity_25_34 = Upper_Activity_Rate_25_34
   )
 
-#We will
+
+##################################################
+################ INITIAL MODEL ###################
+##################################################
 
 #full_model using F1
 full_model <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
@@ -81,6 +93,12 @@ plot(full_model)
 
 # Summary 
 summary(full_model)
+
+
+
+##################################################
+################ OUTLIER DETECTION ###############
+##################################################
 
 #Firstly we will detect and eliminate the noise
 ######Checking for outliers######
@@ -113,7 +131,12 @@ mixedDfSubset <- mixedDf[!(rownames(mixedDf) %in% influential_observations), ]
 
 summary(mixedDfSubset)
 
-#Now that the outlier_indicesand leverage points have been erased, we will create again our model
+
+##################################################
+################ CLEANED MODEL ###################
+##################################################
+
+#Now that the outlier_indices and leverage points have been erased, we will create again our model
 
 full_model_cleaned <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_secondary_25_34 + 
                   low_secondary_55_64 + upper_secondary_25_64 + upper_secondary_25_34 + 
@@ -125,6 +148,12 @@ full_model_cleaned <- lm((low_unemployment_rate) ~ low_secondary_25_64 + low_sec
                   mid_activity_25_64 + mid_activity_25_34 + 
                   high_activity_25_64 + high_activity_25_34 + sex + year, data = mixedDfSubset)
 summary(full_model_cleaned)
+
+
+##################################################
+############## MODEL SELECTION (STEP) ############
+##################################################
+
 
 #####Backward elimination#####
 
@@ -148,6 +177,11 @@ shapiro.test(residuals(step_model))
 #meaning that the residuals do not follow a normal distribution.
 #However, it is very close to the threshold, so we will assume the
 #normality assumption as "nearly satisfied"
+
+
+##################################################
+########### MANUAL BACKWARD ELIMINATION ##########
+##################################################
 
 #Now we will go on with the backward elimination, this time manually to reduce the amount of 
 #variables, as we have some that might not be useful. We will determine a significance level
@@ -243,7 +277,10 @@ vif(finalModel)
 #confidence intervals
 confint(finalModel)
 
-###### INFERENCE: F-TEST ######
+##################################################
+################### INFERENCE ####################
+##################################################
+
 # H0: beta_1 = beta_2 = ... = beta_6 = 0
 # H1: At least one beta_i != 0
 
@@ -432,9 +469,10 @@ t_sexMale
 abs(t_sexMale) > t_crit_upp
 #We reject H0, meaning that the age15_suitability is a significant predictor in our model
 
-###############################
-# MODEL DIAGNOSTICS FOR THE FINAL MODEL
-###############################
+
+##################################################
+############### MODEL DIAGNOSTICS ################
+##################################################
 
 #Diagnostic plots for the final model
 plot(finalModel,1)
@@ -442,6 +480,12 @@ plot(finalModel,2)
 plot(finalModel,3)
 plot(finalModel,4)
 plot(finalModel,5)
+
+
+##################################################
+############  REMOVE OUTLIERS 2 ##################
+##################################################
+
 
 #We are going to remove the observation with large cook's distance to see the impact of them
 
@@ -464,6 +508,11 @@ model_without_influential_1<- lm(
 )
 summary(model_without_influential_1)
 #plot(model_without_influential_1)
+
+
+##################################################
+############  MODEL SIMPLIFICATION ###############
+##################################################
 
 #Now we have a model without the noise on the upper tail, we will do again the model simplification
 
@@ -524,8 +573,9 @@ vif(collinearity_reduced_model_without_influential_3)
 
 definitive_final_model <- collinearity_reduced_model_without_influential_3
 
-###### INFERENCE: F-TEST ######
-
+##################################################
+############  INFERENCE AGAIN   ##################
+##################################################
 # 1. Summary del modelo
 final_model_summary <- summary(definitive_final_model)
 
@@ -563,9 +613,9 @@ cat("F-statistic:", Fstat,
 
 
 
-##############################
-# MODEL
-##############################
+##################################################
+####################  MODEL ######################
+##################################################
 
 collinearity_reduced_model_without_influential_3 <- lm(
   low_unemployment_rate ~ low_secondary_25_64 +
@@ -594,9 +644,9 @@ vif(collinearity_reduced_model_without_influential_3)
 definitive_final_model <- collinearity_reduced_model_without_influential_3
 
 
-##############################
-# F-TEST (GLOBAL SIGNIFICANCE)
-##############################
+##################################################
+#############  F TESTS (GLOBAL) ##################
+##################################################
 
 # 1. Summary
 final_model_summary <- summary(definitive_final_model)
@@ -634,9 +684,10 @@ cat("F-statistic:", Fstat,
     "\nP-value:", p_val_F)
 
 
-##############################
-# T-TEST (INDIVIDUAL VARIABLES)
-##############################
+##################################################
+###########  T TESTS (INDIVIDUAL) ################
+##################################################
+
 
 # Coefficient table
 coef_table <- summary(definitive_final_model)$coefficients
