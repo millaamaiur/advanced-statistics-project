@@ -797,6 +797,113 @@ if (lambda > chi_critical) {
 }
 
 
+###############################
+# CLASSIFICATION TABLE & CUT-OFF ANALYSIS
+###############################
+
+library(caret)
+library(pROC)
+
+# Get predicted probabilities for all classes
+predicted_probs <- predict(final_model, type = "probs")
+
+# Get predicted classes (default: highest probability)
+predicted_class <- predict(final_model, type = "class")
+
+# Ensure both are factors with same levels
+predicted_class <- factor(predicted_class, levels = c("LOW", "MEDIUM", "HIGH"))
+actual_class <- factor(transformedDataFrame$target_employment, levels = c("LOW", "MEDIUM", "HIGH"))
+
+# Classification table (manual confusion matrix to avoid NA issues)
+cat("=== CONFUSION MATRIX ===\n")
+conf_table <- table(Predicted = predicted_class, Actual = actual_class)
+print(conf_table)
+
+# Overall accuracy
+total_correct <- sum(diag(conf_table))
+total_obs <- sum(conf_table)
+accuracy <- total_correct / total_obs
+cat("\nOverall Accuracy:", accuracy, "\n")
+
+# Per-class metrics (One-vs-Rest approach)
+cat("\n=== PER-CLASS METRICS ===\n")
+
+for (cls in c("LOW", "MEDIUM", "HIGH")) {
+  # Create binary vectors for this class
+  actual_binary <- as.numeric(actual_class == cls)
+  predicted_binary <- as.numeric(predicted_class == cls)
+
+  # Confusion matrix components
+  TP <- sum(actual_binary == 1 & predicted_binary == 1)
+  TN <- sum(actual_binary == 0 & predicted_binary == 0)
+  FP <- sum(actual_binary == 0 & predicted_binary == 1)
+  FN <- sum(actual_binary == 1 & predicted_binary == 0)
+
+  # Calculate metrics (with protection against division by zero)
+  sensitivity <- ifelse(TP + FN > 0, TP / (TP + FN), NA)
+  specificity <- ifelse(TN + FP > 0, TN / (TN + FP), NA)
+
+  cat(sprintf("\n%s Class:\n", cls))
+  cat(sprintf("  TP=%d, TN=%d, FP=%d, FN=%d\n", TP, TN, FP, FN))
+  cat(sprintf("  Sensitivity: %.4f\n", sensitivity))
+  cat(sprintf("  Specificity: %.4f\n", specificity))
+}
+
+# ROC curves (One-vs-Rest approach)
+par(pty = "s")
+
+# ROC for MEDIUM class
+roc_medium <- roc(as.numeric(actual_class == "MEDIUM"),
+                  predicted_probs[, "MEDIUM"],
+                  plot = TRUE, legacy.axes = TRUE, print.auc = TRUE,
+                  col = "blue", main = "ROC Curves (One-vs-Rest)")
+
+# ROC for HIGH class
+roc_high <- roc(as.numeric(actual_class == "HIGH"),
+                predicted_probs[, "HIGH"],
+                plot = TRUE, legacy.axes = TRUE, print.auc = TRUE,
+                col = "red", add = TRUE)
+
+# ROC for LOW class
+roc_low <- roc(as.numeric(actual_class == "LOW"),
+               predicted_probs[, "LOW"],
+               plot = TRUE, legacy.axes = TRUE, print.auc = TRUE,
+               col = "green", add = TRUE)
+
+legend("bottomright", legend = c("LOW", "MEDIUM", "HIGH"),
+       col = c("green", "blue", "red"), lwd = 2)
+
+# Find best threshold (maximizes balance between sensitivity and specificity)
+cat("\n=== BEST THRESHOLD POINTS ===\n")
+
+# MEDIUM class
+best_threshold_medium <- roc_medium$thresholds[which.max(
+  roc_medium$sensitivities + roc_medium$specificities - 1
+)]
+best_idx_medium <- which.max(roc_medium$sensitivities + roc_medium$specificities - 1)
+cat("MEDIUM class best threshold:", best_threshold_medium, "\n")
+cat("  Sensitivity at threshold:", roc_medium$sensitivities[best_idx_medium], "\n")
+cat("  Specificity at threshold:", roc_medium$specificities[best_idx_medium], "\n")
+
+# HIGH class
+best_threshold_high <- roc_high$thresholds[which.max(
+  roc_high$sensitivities + roc_high$specificities - 1
+)]
+best_idx_high <- which.max(roc_high$sensitivities + roc_high$specificities - 1)
+cat("HIGH class best threshold:", best_threshold_high, "\n")
+cat("  Sensitivity at threshold:", roc_high$sensitivities[best_idx_high], "\n")
+cat("  Specificity at threshold:", roc_high$specificities[best_idx_high], "\n")
+
+# LOW class
+best_threshold_low <- roc_low$thresholds[which.max(
+  roc_low$sensitivities + roc_low$specificities - 1
+)]
+best_idx_low <- which.max(roc_low$sensitivities + roc_low$specificities - 1)
+cat("LOW class best threshold:", best_threshold_low, "\n")
+cat("  Sensitivity at threshold:", roc_low$sensitivities[best_idx_low], "\n")
+cat("  Specificity at threshold:", roc_low$specificities[best_idx_low], "\n")
+
+
 ######Predictions  of new observations######
 prediction_data <- data.frame(
                    higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10),
