@@ -906,13 +906,15 @@ cat("  Specificity at threshold:", roc_low$specificities[best_idx_low], "\n")
 
 ######Predictions  of new observations######
 prediction_data <- data.frame(
-                   higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10),
-                   low_employment_25_34 =     c(45.0, 13, 13, 47.5, 25),
-                   mid_unemployment_rate =    c(15.2, 8, 8, 20.5, 8),
-                   higher_activity_25_34 =    c(88, 95, 95, 86.3, 90),
-                   sex = factor(c("Male","Female", "Male", "Male", "Female"), levels = c("Female", "Male")),
-                   year =                     c(2019, 2018, 2018, 2014, 2023)
-                  )
+  higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10, 18, 16, 14),
+  low_employment_25_34 =     c(45.0, 13, 13, 47.5, 25, 10, 15, 20),
+  mid_unemployment_rate =    c(15.2, 8, 8, 20.5, 8, 22, 20, 18),
+  higher_activity_25_34 =    c(88, 95, 95, 86.3, 90, 75, 78, 82),
+  sex = factor(c("Male","Female", "Male", "Male", "Female", "Male", "Female", "Male"),
+               levels = c("Female", "Male")),
+  year =                     c(2019, 2018, 2018, 2014, 2023, 2020, 2020, 2021)
+  #                                                          ^COVID ^COVID ^Recovery
+)
 
 prediction <- predict(final_model, 
         newdata = prediction_data,
