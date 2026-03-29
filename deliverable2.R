@@ -467,7 +467,7 @@ t_sexMale
 
 #Compare values: We reject H0 if |t| > t_crit_upp
 abs(t_sexMale) > t_crit_upp
-#We reject H0, meaning that the age15_suitability is a significant predictor in our model
+#We reject H0, meaning that the Sex is a significant predictor in our model
 
 
 ##################################################
@@ -490,7 +490,7 @@ plot(finalModel,5)
 #We are going to remove the observation with large cook's distance to see the impact of them
 
 cooks_distances<- cooks.distance(finalModel)
-cooks_threshold<- 4/nrow(mixedDfSubset)
+cooks_threshold<- 2/nrow(mixedDfSubset)
 cooks_outlier_indexes <- which(cooks_distances> cooks_threshold)
 
 data_clean <- mixedDfSubset[-cooks_outlier_indexes,]
@@ -507,7 +507,7 @@ model_without_influential_1<- lm(
     high_activity_25_64 + high_activity_25_34 + sex + year, data = data_clean
 )
 summary(model_without_influential_1)
-#plot(model_without_influential_1)
+plot(model_without_influential_1,2)
 
 
 ##################################################
@@ -518,7 +518,7 @@ summary(model_without_influential_1)
 
 model_without_influential_2 <- step(model_without_influential_1, direction = "backward")
 summary(model_without_influential_2)
-#plot(model_without_influential_2)
+plot(model_without_influential_2,2)
 # Compare models using AIC and BIC - lowest is better
 AIC(model_without_influential_1, model_without_influential_2)
 BIC(model_without_influential_1, model_without_influential_2)
@@ -555,14 +555,13 @@ summary(collinearity_reduced_model_without_influential_2)
 
 #Now remove again all the values with p-value higher than: alpha = 0.05
 summary(collinearity_reduced_model_without_influential_2)
-#Remove low_secondary_25_34, age12_suitability, high_employment_25_34, high_activity_25_34
+#Remove low_secondary_25_34, age12_suitability, high_employment_25_34, high_activity_25_34, mid_employment_25_34, year
 collinearity_reduced_model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
                                     upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
                                     age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
                                     low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-                                    mid_employment_25_34 +
                                     low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-                                    high_activity_25_64 + year, data = data_clean)
+                                    high_activity_25_64, data = data_clean)
 
 summary(collinearity_reduced_model_without_influential_3)
 # Compare models using AIC and BIC - lowest is better
