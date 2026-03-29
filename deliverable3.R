@@ -906,22 +906,28 @@ cat("  Specificity at threshold:", roc_low$specificities[best_idx_low], "\n")
 
 ######Predictions  of new observations######
 prediction_data <- data.frame(
-  higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10, 18, 16, 14),
-  low_employment_25_34 =     c(45.0, 13, 13, 47.5, 25, 10, 15, 20),
-  mid_unemployment_rate =    c(15.2, 8, 8, 20.5, 8, 22, 20, 18),
-  higher_activity_25_34 =    c(88, 95, 95, 86.3, 90, 75, 78, 82),
-  sex = factor(c("Male","Female", "Male", "Male", "Female", "Male", "Female", "Male"),
+  higher_unemployment_rate = c(12.5, 6, 6, 10.5, 10, 8, 8, 8),
+  low_employment_25_34 =     c(45.0, 13, 13, 47.5, 25, 50, 50, 50),
+  mid_unemployment_rate =    c(15.2, 8, 8, 20.5, 8, 10, 10, 10),
+  higher_activity_25_34 =    c(88, 95, 95, 86.3, 90, 85, 85, 85),
+  sex = factor(c("Male","Female", "Male", "Male", "Female", "Male", "Male", "Male"),
                levels = c("Female", "Male")),
-  year =                     c(2019, 2018, 2018, 2014, 2023, 2020, 2020, 2021)
-  #                                                          ^COVID ^COVID ^Recovery
+  year =                     c(2019, 2018, 2018, 2014, 2023, 2019,     2020,  2021)
+  #                                                          ^Pre-COVID ^COVID ^Recovery
 )
 
 prediction <- predict(final_model, 
         newdata = prediction_data,
         "probs")
+predicted_classes <- apply(prediction, 1, function(row) colnames(prediction)[which.max(row)])
 
-results_table <- cbind(prediction_data, prediction)
-print(results_table)
+results_table <- cbind(prediction_data, prediction, Predicted_Class = predicted_classes)
+for(i in 1:nrow(prediction)){
+  cat(sprintf("\nObservation %d: %s\n", i, predicted_classes[i]))
+  cat(sprintf("  LOW: %.4f (cutoff: %.4f)\n", prediction[i,"LOW"], best_threshold_low))
+  cat(sprintf("  MEDIUM: %.4f (cutoff: %.4f)\n", prediction[i,"MEDIUM"], best_threshold_medium))
+  cat(sprintf("  HIGH: %.4f (cutoff: %.4f)\n", prediction[i,"HIGH"], best_threshold_high))
+}
 
 #In these predictions, we can see different cases where all types of classes are predicted, LOW, MEDIUM
 #and HIGH. On the second and the third observations, we used the same values, except for sex, 

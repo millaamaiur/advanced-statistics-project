@@ -548,96 +548,95 @@ vif(collinearity_reduced_model_without_influential_2)
 
 summary(collinearity_reduced_model_without_influential_2)
 
-#this is the best model we can get. If we remove more variables with multicollinearity the
-#AIC and BIC increase a lot
+#Now we will remove variables with high collinearity, the AIC and VIC will increase but it is necessary
 
 
-
-#Now remove again all the values with p-value higher than: alpha = 0.05
-summary(collinearity_reduced_model_without_influential_2)
-#Remove low_secondary_25_34, age12_suitability, high_employment_25_34, high_activity_25_34, mid_employment_25_34, year
+#Remove mid_employment_25_64 (vif ~ 882)     
 collinearity_reduced_model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
-                                    upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
-                                    age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
-                                    low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-                                    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-                                    high_activity_25_64, data = data_clean)
+                 low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                 age12_suitability + age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                 low_employment_25_64 + low_employment_25_34 +
+                 mid_employment_25_34 + high_employment_25_34 +
+                 low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                 high_activity_25_64 + high_activity_25_34 + year, data = data_clean)
 
-summary(collinearity_reduced_model_without_influential_3)
+
 # Compare models using AIC and BIC - lowest is better
 AIC(collinearity_reduced_model_without_influential_2, collinearity_reduced_model_without_influential_3)
 BIC(collinearity_reduced_model_without_influential_2, collinearity_reduced_model_without_influential_3)
 
 vif(collinearity_reduced_model_without_influential_3)
-
-definitive_final_model <- collinearity_reduced_model_without_influential_3
-
-##################################################
-############  INFERENCE AGAIN   ##################
-##################################################
-# 1. Summary del modelo
-final_model_summary <- summary(definitive_final_model)
-
-# 2. Tamaños
-n <- nrow(data_clean)                         # número de observaciones
-p <- length(coef(definitive_final_model)) - 1 # número de variables (sin intercepto)
-
-# 3. Sumas de cuadrados
-TSS <- sum((data_clean$low_unemployment_rate - 
-              mean(data_clean$low_unemployment_rate))^2)
-
-RSS <- deviance(definitive_final_model)
-
-# 4. Grados de libertad
-df_num <- p
-df_den <- n - (p + 1)
-
-# 5. Estadístico F
-Fstat <- ((TSS - RSS)/df_num) / (RSS/df_den)
-
-# 6. Valor crítico (α = 0.05)
-F_alpha <- qf(0.05, df_num, df_den, lower.tail = FALSE)
-
-# 7. p-value
-p_val_F <- pf(Fstat, df_num, df_den, lower.tail = FALSE)
-
-# 8. Decisión
-reject_H0_F <- Fstat > F_alpha
-
-# 9. Resultado
-cat("F-statistic:", Fstat,
-    "\nF-critical:", F_alpha,
-    "\nReject H0:", reject_H0_F,
-    "\nP-value:", p_val_F)
-
-
-
-##################################################
-####################  MODEL ######################
-##################################################
-
-collinearity_reduced_model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
-                                                         upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
-                                                         age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
-                                                         low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-                                                         low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-                                                         high_activity_25_64, data = data_clean)
-
 summary(collinearity_reduced_model_without_influential_3)
 
-# Model comparison
-AIC(collinearity_reduced_model_without_influential_2,
-    collinearity_reduced_model_without_influential_3)
+#Now we get some variables with VIC ~ 30, but if we eliminate them the AIC and BIC increase
+#significantly, so we decided to not discard them
 
-BIC(collinearity_reduced_model_without_influential_2,
-    collinearity_reduced_model_without_influential_3)
+#Remove high_employment_25_34             
+collinearity_reduced_model_without_influential_4 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
+                 low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                 age12_suitability + age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                 low_employment_25_64 + low_employment_25_34 +
+                 mid_employment_25_34 +
+                 low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                 high_activity_25_64 + high_activity_25_34 + year, data = data_clean)
 
-# Multicollinearity
-vif(collinearity_reduced_model_without_influential_3)
 
-# Final model
-definitive_final_model <- collinearity_reduced_model_without_influential_3
+summary(collinearity_reduced_model_without_influential_4)
+# Compare models using AIC and BIC - lowest is better
+AIC(collinearity_reduced_model_without_influential_3, collinearity_reduced_model_without_influential_4)
+BIC(collinearity_reduced_model_without_influential_3, collinearity_reduced_model_without_influential_4)
+#AIC more or less the same, BIC lower
 
+#Remove high_activity_25_34           
+collinearity_reduced_model_without_influential_5 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
+                 low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                 age12_suitability + age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                 low_employment_25_64 + low_employment_25_34 +
+                 mid_employment_25_34 +
+                 low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                 high_activity_25_64 + year, data = data_clean)
+
+
+summary(collinearity_reduced_model_without_influential_5)
+# Compare models using AIC and BIC - lowest is better
+AIC(collinearity_reduced_model_without_influential_4, collinearity_reduced_model_without_influential_5)
+BIC(collinearity_reduced_model_without_influential_4, collinearity_reduced_model_without_influential_5)
+#AIC and BIC lower
+
+#Remove year      
+collinearity_reduced_model_without_influential_6 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
+                 low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                 age12_suitability + age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                 low_employment_25_64 + low_employment_25_34 +
+                 mid_employment_25_34 +
+                 low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                 high_activity_25_64, data = data_clean)
+
+
+summary(collinearity_reduced_model_without_influential_6)
+# Compare models using AIC and BIC - lowest is better
+AIC(collinearity_reduced_model_without_influential_5, collinearity_reduced_model_without_influential_6)
+BIC(collinearity_reduced_model_without_influential_5, collinearity_reduced_model_without_influential_6)
+#AIC a bit higher and BIC lower, we will keep the reduced model
+#Remove age12_suitability              
+collinearity_reduced_model_without_influential_7 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
+                 low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                 low_employment_25_64 + low_employment_25_34 +
+                 mid_employment_25_34 +
+                 low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                 high_activity_25_64, data = data_clean)
+
+
+summary(collinearity_reduced_model_without_influential_7)
+# Compare models using AIC and BIC - lowest is better
+AIC(collinearity_reduced_model_without_influential_6, collinearity_reduced_model_without_influential_7)
+BIC(collinearity_reduced_model_without_influential_6, collinearity_reduced_model_without_influential_7)
+#AIC a bit higher and BIC lower, we will keep the reduced model
+
+vif(collinearity_reduced_model_without_influential_7)
+
+definitive_final_model <- collinearity_reduced_model_without_influential_7
 
 ##################################################
 #############  F TESTS (GLOBAL) ##################
@@ -717,14 +716,6 @@ for (var in rownames(coef_table)) {
 
 
 
-
-
-
-
-
-
-
-
 ##########   RESULTS   ##########
 #The residuals appear randomly scattered around zero,
 #suggesting that the linearity assumption is reasonably satisfied.
@@ -739,7 +730,7 @@ shapiro.test(residuals(definitive_final_model))
 #Looking at the results of the shapiro test we could say that the residuals don't follow a normal distribution.
 #However, we've analyzed the Q-Q plot and concluded that they follow a normal distribution with
 #a small deviation on the upper tail
-
+plot(definitive_final_model)
 
 #Confidence interval of the final model
 confint(definitive_final_model)
@@ -754,11 +745,12 @@ train_data <- data_clean[train_index, ]
 test_data <- data_clean[-train_index, ]
 
 training_model<- lm(low_unemployment_rate ~ low_secondary_25_64 +
-  upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
-  age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
-  low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-  low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-  high_activity_25_64, data = train_data)
+                      low_secondary_25_34 + upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                      age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                      low_employment_25_64 + low_employment_25_34 +
+                      mid_employment_25_34 +
+                      low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                      high_activity_25_64, data = train_data)
 
 #Now let's do the predictions using the training model
 predictions <- predict(training_model, newdata = test_data)
