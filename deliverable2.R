@@ -616,16 +616,12 @@ cat("F-statistic:", Fstat,
 ####################  MODEL ######################
 ##################################################
 
-collinearity_reduced_model_without_influential_3 <- lm(
-  low_unemployment_rate ~ low_secondary_25_64 +
-    upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
-    age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
-    low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-    mid_employment_25_34 +
-    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-    high_activity_25_64 + year,
-  data = data_clean
-)
+collinearity_reduced_model_without_influential_3 <- lm(low_unemployment_rate ~ low_secondary_25_64 +
+                                                         upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+                                                         age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+                                                         low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
+                                                         low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+                                                         high_activity_25_64, data = data_clean)
 
 summary(collinearity_reduced_model_without_influential_3)
 
@@ -757,16 +753,12 @@ train_index <- sample(1:nrow(data_clean), 0.7 * nrow(data_clean))
 train_data <- data_clean[train_index, ]
 test_data <- data_clean[-train_index, ]
 
-training_model<- lm(
-  low_unemployment_rate ~ low_secondary_25_64 +
-    upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
-    age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
-    low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
-    mid_employment_25_34 +
-    low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
-    high_activity_25_64 + year,
-  data = train_data
-)
+training_model<- lm(low_unemployment_rate ~ low_secondary_25_64 +
+  upper_secondary_25_34 + upper_secondary_55_64 + higher_education_55_64 +
+  age15_suitability + mid_unemployment_rate + high_unemployment_rate + 
+  low_employment_25_64 + low_employment_25_34 + mid_employment_25_64 +
+  low_activity_25_64 + low_activity_25_34 + mid_activity_25_64 +
+  high_activity_25_64, data = train_data)
 
 #Now let's do the predictions using the training model
 predictions <- predict(training_model, newdata = test_data)
