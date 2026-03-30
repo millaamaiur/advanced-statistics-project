@@ -730,7 +730,7 @@ shapiro.test(residuals(definitive_final_model))
 #Looking at the results of the shapiro test we could say that the residuals don't follow a normal distribution.
 #However, we've analyzed the Q-Q plot and concluded that they follow a normal distribution with
 #a small deviation on the upper tail
-plot(definitive_final_model)
+plot(definitive_final_model,4)
 
 #Confidence interval of the final model
 confint(definitive_final_model)
