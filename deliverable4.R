@@ -1,5 +1,8 @@
 library(FactoMineR)
+library(factoextra)
 library(plotrix)
+library(tidyverse)
+library(dplyr)
 
 data1 <- read.csv("./dataset1.csv")
 data2 <- read.csv("./dataset2.csv")
@@ -61,3 +64,42 @@ mixedDataFrame <- mixedDf %>%
     higher_activity_25_64 = Upper_Activity_Rate_25_64,
     higher_activity_25_34 = Upper_Activity_Rate_25_34
   )
+
+colnames(mixedDataFrame)
+
+# Eliminate the categorical columns (autonomous_comunity and sex) and year
+df_pca <- mixedDataFrame[, 4:ncol(mixedDataFrame)]
+cor(df_pca)
+# Check if all the variables are numeric
+df_pca <- as.data.frame(lapply(df_pca, as.numeric))
+
+
+res_pca <- PCA(df_pca, scale.unit = TRUE)
+
+summary(res_pca)
+
+fviz_eig(res_pca, addlabels = TRUE, barfill = "Steelblue", title="Scree Plot: Variance Explained")
+
+
+
+
+
+
+
+
+
+
+
+ 
+# # Identificamos los índices de las columnas que no son métricas
+# # Supongamos que: 1=autonomous_community, 2=sex, 3=year
+# res.pca <- PCA(mixedDataFrame,
+#                quali.sup = c(1, 2, 3), # Las tratamos como etiquetas/grupos
+#                graph = FALSE)
+# 
+# # Ahora puedes ver cómo se mueven los años en el gráfico
+# library(factoextra)
+# fviz_pca_ind(res.pca,
+#              habillage = "year",   # Colorea los puntos por año
+#              addEllipses = TRUE,   # Crea nubes por año
+#              geom = "point")
