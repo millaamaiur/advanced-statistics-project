@@ -80,8 +80,15 @@ res_pca <- PCA(mixedDataFrame,
 # This means they do not influence the calculations of the principal components.
 
 summary(res_pca)
+# There are 5 variables with a variance higher than 1, however, we will focus on the first two dimensions because they are where 
+# the most big changes of variability occur
+
 
 fviz_eig(res_pca, addlabels = TRUE, barfill = "Steelblue", title="Scree Plot: Variance Explained")
+# Looking at the scree plot, it can be seen a clear elbow on the third dimension. However, we will only consider the first two
+# components because the cumulative variance explained is of 71.9%. After the third component, the contribution of the next 
+# dimensions decreases significantly. 
+
 
 # we can verify that our results match those of the pca function
 # eigenvalues
@@ -93,19 +100,26 @@ res_pca$ind$coord
 # variables (correlations)
 res_pca$var$coord
 
+# How the variables are positioned in the two dimensions?
 fviz_pca_ind(res_pca)
-# It can be seen two different groups, what about highlighting them by Sex?
+# It can be seen two different groups, what about highlighting the observations by Sex?
 
 fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE)
 # Now it is clear that the groups were formed because of the sex.
 
+# Lets see the contribution of the variables to the dimensions
 fviz_pca_var(res_pca, 
              col.var = "contrib",
              repel = TRUE)
 
-# ctr indicates each individual's contribution to a given principle component, 
-# in percentage form. We can get the full list of contributions from res_pca$ind$contrib. 
-# Each column sums up to 100(%).
+# view each variables's contribution to each principle component:
+res_pca$var$contrib
+
+# Let's see it graphically
+fviz_contrib(res_pca, "var", axes = 1, fill = "steelblue", sortcontrib = "desc", top = 15) 
+# Here it can be seen the top 15 variables that contribute the most. Employment rates between 25-64 are determining factors, with contributions
+# that are above the 8%. Variables that exceed the theoretical line of the average contribution (the red line between 3.5% and 4%) are mostly
+# employment or activity related variables, meaning that the first component is a dimension of the labor market and unemployment and activity.
 
 # view each individual's contribution to each principle component:
 res_pca$ind$contrib
@@ -122,10 +136,8 @@ colSums(res_pca$ind$contrib)
 # For a variable cos2 is the square of the correlation:
 (res_pca$var$cor)^2 #=cos2 for variables
 
-
-
-
-
+# Let's see now the squared cosine graphically
+fviz_cos2(res_pca, choice = "var", axes = 1:2)
 
 
 
