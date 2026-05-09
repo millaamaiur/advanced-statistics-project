@@ -73,14 +73,54 @@ cor(df_pca)
 # Check if all the variables are numeric
 df_pca <- as.data.frame(lapply(df_pca, as.numeric))
 
-
-res_pca <- PCA(df_pca, scale.unit = TRUE)
+res_pca <- PCA(mixedDataFrame, 
+               quali.sup = c(1, 2, 3), 
+               graph = FALSE, scale.unit = TRUE)
+# We use every variable for further analysis, however the categorical ones treated as supplementary (quali.sup). 
+# This means they do not influence the calculations of the principal components.
 
 summary(res_pca)
 
 fviz_eig(res_pca, addlabels = TRUE, barfill = "Steelblue", title="Scree Plot: Variance Explained")
 
+# we can verify that our results match those of the pca function
+# eigenvalues
+res_pca$eig
 
+# individual (coordinates)
+res_pca$ind$coord
+
+# variables (correlations)
+res_pca$var$coord
+
+fviz_pca_ind(res_pca)
+# It can be seen two different groups, what about highlighting them by Sex?
+
+fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE)
+# Now it is clear that the groups were formed because of the sex.
+
+fviz_pca_var(res_pca, 
+             col.var = "contrib",
+             repel = TRUE)
+
+# ctr indicates each individual's contribution to a given principle component, 
+# in percentage form. We can get the full list of contributions from res_pca$ind$contrib. 
+# Each column sums up to 100(%).
+
+# view each individual's contribution to each principle component:
+res_pca$ind$contrib
+# verify each principle component's contributions sum up to 100%:
+colSums(res_pca$ind$contrib)
+
+
+# cos2 is the squared cosine for each principle component, 
+# calculated as (Dim.X/Dist)^2. 
+# The closer it is to 1 for a given principle component, 
+# the better that principle component is at capturing all the characteristics 
+# of that individual.
+(res_pca$ind$coord/res_pca$ind$dist)^2  #=cos2 for individuals
+# For a variable cos2 is the square of the correlation:
+(res_pca$var$cor)^2 #=cos2 for variables
 
 
 
