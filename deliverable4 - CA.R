@@ -1,10 +1,6 @@
 library(FactoMineR)
 library(factoextra)
-library(plotrix)
 library(tidyverse)
-library(dplyr)
-library(FactoMineR)
-
 
 data1 <- read.csv("./dataset1.csv")
 data2 <- read.csv("./dataset2.csv")
@@ -22,7 +18,7 @@ mixedDf <- na.omit(mixedDf)
 summary(mixedDf)
 dim(mixedDf)
 
-#We will transform the Sex variable into a binary
+# We transform Sex into a factor 
 mixedDf$Sex <- factor(mixedDf$Sex, levels = c("Female", "Male"))
 mixedDf$Sex
 head(mixedDf)
@@ -67,30 +63,52 @@ mixedDataFrame <- mixedDf %>%
     higher_activity_25_34 = Upper_Activity_Rate_25_34
   )
 
-# Eliminate the categorical columns (autonomous_comunity and sex) and year
-df_pca <- mixedDataFrame[, 4:ncol(mixedDataFrame)]
-cor(df_pca)
-# Check if all the variables are numeric
-df_pca <- as.data.frame(lapply(df_pca, as.numeric))
+# Create unemployment categories
+mixedDataFrame$unemployment_level <- cut(
+  mixedDataFrame$low_unemployment_rate,
+  breaks = quantile(
+    mixedDataFrame$low_unemployment_rate,
+    probs = c(0, 0.33, 0.66, 1),
+    na.rm = TRUE
+  ),
+  labels = c("Low", "Medium", "High"),
+  include.lowest = TRUE
+)
 
+# Create contingency table
+unemployment_table <- table(
+  mixedDataFrame$autonomous_community,
+  mixedDataFrame$unemployment_level
+)
 
+unemployment_table
 
-# Is independent or not?
-x2test<-chisq.test(df_pca)
+# Chi-square test
+x2test <- chisq.test(unemployment_table)
 
-# p-value < 2.2e-16 -> small
+x2test
 
+# Expected values
+round(x2test$expected,0)
 
+# Observed values
+x2test$observed
 
-# The function to obtain the CA is simply (CA)
-cabrain <- CA(df_pca)
-cabrain$eig
+# P-value
+x2test$p.value
 
-# we visualize both row and column profiles by 
-plot(cabrain)
-# One can visualize only the rows or only the columns with
-plot(cabrain,invisible="col") 
-plot(cabrain,invisible="row")
+# Correspondence Analysis
+ca_unemployment <- CA(unemployment_table, graph = FALSE)
 
-# The main indicators can be obtained with
-summary(cabrain)
+# Eigenvalues
+ca_unemployment$eig
+
+# Plots
+plot(ca_unemployment)
+
+plot(ca_unemployment, invisible = "col")
+
+plot(ca_unemployment, invisible = "row")
+
+# Summary
+summary(ca_unemployment)
