@@ -936,3 +936,4 @@ for(i in 1:nrow(prediction)){
 #female, even when all other educational and economic variables remain constant. This demostrates
 #that sex is a key variable in our model for reaching the highest employment performance category.
 #This explains the really low p-value of this variable when we computed it.
+
