@@ -102,10 +102,11 @@ res_pca$var$coord
 
 # How the variables are positioned in the two dimensions?
 fviz_pca_ind(res_pca)
-# It can be seen two different groups, what about highlighting the observations by Sex?
+#  The map reveals a clear structural separation along Dimension 1 (41.3%). What about highlighting the observations by Sex?
 
 fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE)
-# Now it is clear that the groups were formed because of the sex.
+# By applying the habillage by Sex, we can confirm that gender is a primary source of variance in the dataset.
+# Female observations tend to cluster on the bottom left side while male individuals on the upper right side.
 
 # Lets see the contribution of the variables to the dimensions
 fviz_pca_var(res_pca, 
@@ -121,10 +122,22 @@ fviz_contrib(res_pca, "var", axes = 1, fill = "steelblue", sortcontrib = "desc",
 # that are above the 8%. Variables that exceed the theoretical line of the average contribution (the red line between 3.5% and 4%) are mostly
 # employment or activity related variables, meaning that the first component is a dimension of the labor market and unemployment and activity.
 
+fviz_contrib(res_pca, "var", axes = 2, fill = "steelblue", sortcontrib = "desc", top = 15) 
+# This plot shows that the second component is primarly driven by Educational and Suitability variables.
+# This time the most impactful variables are the education ones (higher_education_25_34, higher_education_25_64 and low_secondary_25_34) with
+# more than 10%. Suitability also appears very high. This dimension doesn't measure wether people have a job or not, it measures the level
+# of studies people have and how suitable is the education for the age.
+
+# Based on the previous division by sex, it could be said that the shift of the 'Male' group towards the positive side of Dim 1 is driven by 
+# higher employment and activity rates, whereas the 'Female' cluster's position is more influenced by higher unemployment rates in certain regions.
+# Also, the female cluster is located lower on the y axis, looking at the variable plot, the higher education variables point to the negative side
+# of this dimension, suggesting that females could have a higher profile of higher education than males.
+
 # view each individual's contribution to each principle component:
 res_pca$ind$contrib
 # verify each principle component's contributions sum up to 100%:
 colSums(res_pca$ind$contrib)
+# Every principle component's contributions sum up to 100%
 
 
 # cos2 is the squared cosine for each principle component, 
@@ -139,19 +152,3 @@ colSums(res_pca$ind$contrib)
 # Let's see now the squared cosine graphically
 fviz_cos2(res_pca, choice = "var", axes = 1:2)
 
-
-
-
- 
-# # Identificamos los índices de las columnas que no son métricas
-# # Supongamos que: 1=autonomous_community, 2=sex, 3=year
-# res.pca <- PCA(mixedDataFrame,
-#                quali.sup = c(1, 2, 3), # Las tratamos como etiquetas/grupos
-#                graph = FALSE)
-# 
-# # Ahora puedes ver cómo se mueven los años en el gráfico
-# library(factoextra)
-# fviz_pca_ind(res.pca,
-#              habillage = "year",   # Colorea los puntos por año
-#              addEllipses = TRUE,   # Crea nubes por año
-#              geom = "point")

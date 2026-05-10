@@ -9,7 +9,7 @@ library(dplyr)
 source("deliverable4.R")
 
 df_original <- scale(df_pca)
-df_pca <- res_pca$ind$coord[, 1:2]
+df_pcaClust <- res_pca$ind$coord[, 1:2]
 
 # In this Clustering part we are going to
 # work over two datasets, the original one with all the variables
@@ -19,13 +19,13 @@ df_pca <- res_pca$ind$coord[, 1:2]
 
 fviz_nbclust(df_original, kmeans, method = "wss", k.max = 20) + 
   ggtitle("Optimal number of clusters (Original df)")
-fviz_nbclust(df_pca, kmeans, method = "wss", k.max = 20) + 
+fviz_nbclust(df_pcaClust, kmeans, method = "wss", k.max = 20) + 
   ggtitle("Optimal number of clusters (PCA df)")
 
 
 fviz_nbclust(df_original, kmeans, method = "silhouette", k.max = 20) + 
   ggtitle("Optimal number of clusters (Original df)")
-fviz_nbclust(df_pca, kmeans, method = "silhouette", k.max = 20) + 
+fviz_nbclust(df_pcaClust, kmeans, method = "silhouette", k.max = 20) + 
   ggtitle("Optimal number of clusters (PCA df)")
 
 
@@ -46,7 +46,7 @@ km.out_1 <- kmeans(df_original,
                    nstart = 10 # how many initial conditions are created
 )
 
-km.out_2 <- kmeans(df_pca, 
+km.out_2 <- kmeans(df_pcaClust, 
                  k, 
                  nstart = 10 # how many initial conditions are created
 )
@@ -54,14 +54,14 @@ km.out_2 <- kmeans(df_pca,
 plot(df_original, col = (km.out_1$cluster + 1),
      main = paste("K-Means Clustering Results (Original) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
-plot(df_pca, col = (km.out_2$cluster + 1),
+plot(df_pcaClust, col = (km.out_2$cluster + 1),
      main = paste("K-Means Clustering Results (PCA) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
 
 # Let's work on the hierarchical clustering
 
 hc_original <- hclust(dist(df_original), method = "ward.D2")
-hc_pca <- hclust(dist(df_pca), method = "ward.D2")
+hc_pca <- hclust(dist(df_pcaClust), method = "ward.D2")
 
 plot(hc_original, labels = FALSE)
 rect.hclust(hc_original, k = 4, border = 2:5)
@@ -76,7 +76,7 @@ hc_clusters_pca <- cutree(hc_pca, k=4)
 plot(df_original, col = (hc_clusters_original + 1),
      main = paste("Hierarchical Clustering Results (Original) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
-plot(df_pca, col = (hc_clusters_pca + 1),
+plot(df_pcaClust, col = (hc_clusters_pca + 1),
      main = paste("Hierarchical Clustering Results (PCA) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
 
