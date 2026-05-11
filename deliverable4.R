@@ -1,7 +1,8 @@
 library(FactoMineR)
 library(factoextra)
-library(plotrix)
 library(tidyverse)
+
+####### Data Preparation #######
 
 data1 <- read.csv("./dataset1.csv")
 data2 <- read.csv("./dataset2.csv")
@@ -66,6 +67,8 @@ mixedDataFrame <- mixedDf %>%
 
 colnames(mixedDataFrame)
 
+####### PCA Setup #######
+
 # Eliminate the categorical columns (autonomous_comunity and sex) and year
 df_pca <- mixedDataFrame[, 4:ncol(mixedDataFrame)]
 cor(df_pca)
@@ -77,6 +80,8 @@ res_pca <- PCA(mixedDataFrame,
                graph = FALSE, scale.unit = TRUE)
 # We use every variable for further analysis, however the categorical ones treated as supplementary (quali.sup). 
 # This means they do not influence the calculations of the principal components.
+
+####### Dimensionality #######
 
 summary(res_pca)
 # There are 5 variables with a variance higher than 1, however, we will focus on the first two dimensions because they are where 
@@ -108,6 +113,12 @@ fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE)
 # By applying the habillage by Sex, we can confirm that gender is a primary source of variance in the dataset.
 # Female observations tend to cluster on the bottom left side while male individuals on the upper right side.
 
+fviz_pca_ind(res_pca, habillage = 3, addEllipses = TRUE)
+# If we highlight the observations by year, it is harder to see the observations, but the clusters show a clear pattern that will be analyzed later,
+# as the ellipses go from the left high side downwards and to the right.
+
+####### Quality and contribution ####### 
+
 # Lets see the contribution of the variables to the dimensions
 fviz_pca_var(res_pca, 
              col.var = "contrib",
@@ -132,6 +143,10 @@ fviz_contrib(res_pca, "var", axes = 2, fill = "steelblue", sortcontrib = "desc",
 # higher employment and activity rates, whereas the 'Female' cluster's position is more influenced by higher unemployment rates in certain regions.
 # Also, the female cluster is located lower on the y axis, looking at the variable plot, the higher education variables point to the negative side
 # of this dimension, suggesting that females could have a higher profile of higher education than males.
+
+# For the division by year, it could be said that as the pattern goes downward, and since the negative side of Dim 2 is associated with 
+# higher education and suitability, this pattern suggests a general improvement in education from 2013 to 2024. Also, the ellipses moved
+# to the right side, suggesting an improvement in the employment rates.
 
 # view each individual's contribution to each principle component:
 res_pca$ind$contrib
