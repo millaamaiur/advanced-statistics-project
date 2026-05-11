@@ -97,6 +97,17 @@ x2test$observed
 # P-value
 x2test$p.value
 
+###################################
+residuals_table <- x2test$residuals
+
+association_by_region <- data.frame(
+  autonomous_community = rownames(residuals_table),
+  associated_level = colnames(residuals_table)[max.col(residuals_table)],
+  max_residual = apply(residuals_table, 1, max)
+)
+
+association_by_region
+
 # Correspondence Analysis
 ca_unemployment <- CA(unemployment_table, graph = FALSE)
 
