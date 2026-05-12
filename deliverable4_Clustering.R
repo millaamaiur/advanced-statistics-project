@@ -111,6 +111,16 @@ ggplot(data_long_km, aes(x = cluster, y = value, fill = cluster)) +
   labs(x = "Cluster", y = "", title = "K-Means: Variable Distribution per Cluster") +
   theme(legend.position = "none", strip.text = element_text(face = "bold"))
 
+
+# The original dataset clustering shows a clear **socioeconomic gradient** across
+# the four clusters, with education and employment variables being the main drivers.
+# Cluster 1 (pink) consistently scores low on `higher_*` variables and high on `low_*` ones,
+# representing a **disadvantaged profile**, 
+# while Cluster 2 (green) shows the opposite — high education and employment. 
+# The `mid_*` variables show less separation, meaning middle-tier groups are spread across 
+# clusters and don't drive the groupings. Clusters 3 and 4 appear differentiated more
+# by **age structure** (`age12`, `age15` suitability) than by education or employment levels.
+
 # ---- Hierarchical interpretation ----
 df_original_hc <- as.data.frame(df_original)
 df_original_hc$cluster <- as.factor(hc_clusters_original)
@@ -129,3 +139,11 @@ ggplot(data_long_hc, aes(x = cluster, y = value, fill = cluster)) +
   labs(x = "Cluster", y = "", title = "Hierarchical: Variable Distribution per Cluster") +
   theme(legend.position = "none", strip.text = element_text(face = "bold"))
 
+# Hierarchical clustering produces cleaner within-cluster distributions (tighter violins) 
+# compared to K-Means, suggesting more internally homogeneous groups. 
+# The same socioeconomic gradient is present — Cluster 1 (pink) scores high on low_* variables 
+# and low on higher_*, while Cluster 2 (green) shows the opposite high-education, high-employment 
+# profile. However, Clusters 3 and 4 are more clearly separated here than in K-Means, particularly 
+# in the higher_unemployment_rate and age*_suitability variables. Overall, hierarchical clustering 
+# appears to capture the group structure more precisely, with less overlap between clusters across 
+# most variables.
