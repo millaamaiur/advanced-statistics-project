@@ -58,6 +58,15 @@ plot(df_pcaClust, col = (km.out_2$cluster + 1),
      main = paste("K-Means Clustering Results (PCA) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
 
+# The PCA clustering shows much cleaner separation between the 4 groups compared 
+# to the original data, where clusters heavily overlap along a diagonal band. 
+# This suggests the original features were correlated or noisy, 
+# making it hard for K-Means to find meaningful boundaries. 
+# PCA removed that redundancy and projected the data onto directions of maximum variance, 
+# revealing latent structure. Overall, K=4 seems more justified in the PCA space, 
+# where groups emerge naturally, 
+# than in the original space where the split feels somewhat arbitrary.
+
 # Let's work on the hierarchical clustering
 
 hc_original <- hclust(dist(df_original), method = "ward.D2")
@@ -79,6 +88,10 @@ plot(df_original, col = (hc_clusters_original + 1),
 plot(df_pcaClust, col = (hc_clusters_pca + 1),
      main = paste("Hierarchical Clustering Results (PCA) with K = ", k, sep = " "),
      xlab = "", ylab = "", pch = 20, cex = 2)
+
+
+# We are getting very similar results to the k means method were the PCA dataset gets very
+# very clear clusters compared with the original one
 
 # ---- K-means interpretation ----
 df_original_df <- as.data.frame(df_original)
