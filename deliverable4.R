@@ -69,12 +69,7 @@ colnames(mixedDataFrame)
 
 ####### PCA Setup #######
 
-# Eliminate the categorical columns (autonomous_comunity and sex) and year
-df_pca <- mixedDataFrame[, 4:ncol(mixedDataFrame)]
-cor(df_pca)
-# Check if all the variables are numeric
-df_pca <- as.data.frame(lapply(df_pca, as.numeric))
-
+# Compute PCA with full model
 res_pca <- PCA(mixedDataFrame, 
                quali.sup = c(1, 2, 3), 
                graph = FALSE, scale.unit = TRUE)
@@ -95,7 +90,6 @@ fviz_eig(res_pca, addlabels = TRUE, barfill = "Steelblue", title="Scree Plot: Va
 
 ######## PCA Model Interpretation ########
 
-# we can verify that our results match those of the pca function
 # eigenvalues
 res_pca$eig
 
@@ -126,6 +120,14 @@ fviz_pca_var(res_pca,
 
 # view each variables's contribution to each principle component:
 res_pca$var$contrib
+
+# Biplot: Combining individuals and variables to show the duality clearly
+fviz_pca_biplot(res_pca, 
+                habillage = 2, 
+                addEllipses = TRUE, 
+                col.var = "black", 
+                repel = TRUE,
+                label = "var")
 
 # Let's see it graphically
 fviz_contrib(res_pca, "var", axes = 1, fill = "steelblue", sortcontrib = "desc", top = 15) 
