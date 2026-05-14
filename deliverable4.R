@@ -121,6 +121,12 @@ fviz_pca_var(res_pca,
 # view each variables's contribution to each principle component:
 res_pca$var$contrib
 
+# The contribution of each variable to the first component:
+sort(res_pca$var$contrib[,1], decreasing = TRUE)
+
+# The contribution of each variable to the second component:
+sort(res_pca$var$contrib[,2], decreasing = TRUE)
+
 # Biplot: Combining individuals and variables to show the duality clearly
 fviz_pca_biplot(res_pca, 
                 habillage = 2, 
