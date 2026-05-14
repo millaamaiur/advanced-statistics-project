@@ -172,6 +172,11 @@ colSums(res_pca$ind$contrib)
 # For a variable cos2 is the square of the correlation:
 ((res_pca$var$cor)^2) #=cos2 for variables
 
+# cos2 for dim1
+sort(((res_pca$var$cor)^2)[,1], decreasing = TRUE)
+# cos2 for dim2
+sort(((res_pca$var$cor)^2)[,2], decreasing = TRUE)
+
 # Let's see now the squared cosine graphically for both dimensions
 fviz_cos2(res_pca, choice = "var", axes = 1)
 # Again, the first dimension explains more the employment variables, explaining very well employment rates between 25-64
