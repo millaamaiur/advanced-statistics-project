@@ -103,11 +103,11 @@ res_pca$var$coord
 fviz_pca_ind(res_pca)
 #  The map reveals a clear structural separation along Dimension 1 (41.3%). What about highlighting the observations by Sex?
 
-fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE)
+fviz_pca_ind(res_pca, habillage = 2, addEllipses = TRUE, label = "var")
 # By applying the habillage by Sex, we can confirm that gender is a primary source of variance in the dataset.
 # Female observations tend to cluster on the bottom left side while male individuals on the upper right side.
 
-fviz_pca_ind(res_pca, habillage = 3, addEllipses = TRUE)
+fviz_pca_ind(res_pca, habillage = 3, addEllipses = TRUE, label = "var")
 # If we highlight the observations by year, it is harder to see the observations, but the clusters show a clear pattern that will be analyzed later,
 # as the ellipses go from the left high side downwards and to the right.
 

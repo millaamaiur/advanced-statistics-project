@@ -124,3 +124,30 @@ plot(ca_unemployment, invisible = "row")
 # Summary
 summary(ca_unemployment)
 
+# Better CA plot
+ca_plot <- fviz_ca_biplot(
+  ca_unemployment,
+  repel = TRUE,
+  label = "all",
+  labelsize = 5,
+  pointsize = 2.5,
+  col.row = "blue",
+  col.col = "red",
+  title = "CA factor map"
+) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 12)
+  )
+
+ca_plot
+
+ggsave(
+  "ca_factor_map.png",
+  plot = ca_plot,
+  width = 16,
+  height = 8,
+  dpi = 300
+)
