@@ -1,0 +1,114 @@
+---
+title: "2026 Student Notebook - part 2"
+author: "Student 1, Student 2, Student 3"
+output: pdf_document
+date: "2026-05-12"
+---
+
+## Student Self-Assessment
+
+Data Science - University of Deusto
+
+Before submission, provide an estimation of:
+
+-   **Total time spent:** [Insert time]
+-   **Main difficulties:** [Insert text]
+-   **Level of satisfaction:** [Insert text]
+-   **Improvement suggestions:** [Insert text]
+
+------------------------------------------------------------------------
+
+## Context of the project and instructions
+
+This is the notebook you will use for the assignment of the subject Data Science.
+
+You will find here exercises regarding all the topics covered within the semester. The exercises are aligned with theory classes and examples of code you will see during sessions, so it is recommendable to update it weekly in order to not accumulate all of them at the end of the semester.
+
+Please **read carefully the statements of the different exercises**. If you have any question, please use the forum (but do not share code).
+
+## Submission of the Notebook
+
+To submit the notebook: - Print it in a **PDF file** with all the sections expanded and all the cells executed, in a way all the code can be seen, and all the results are shown. - Save the notebook as **.Rmd file**
+
+Submit both files (NOT in a zip folder) into ALUD.
+
+## Evaluation of the Notebook
+
+The evaluation of the Notebooks counts 50% of the final qualification of the subject. Evaluation is divided into two notebooks (25% each).
+
+The weight in the final mark of all the exercises is equal.
+
+In some exercises, there are extra instructions indicated with the word **(Challenge)**. These are not requirements, but actions needed to surpass the global qualification of 8.5 points.
+
+### Grading Criteria:
+
+-   **[8.5 to 10] points**: Excellent solution; meets all requirements and **(Challenge)**'s.
+-   **[5 to 8.5] points**: Meets requirements but has room for improvement (presentation, justification, code efficiency).
+-   **[1 to 5] points**: Does not meet several requirements.
+-   **[0] points**: Solution not provided or plagiarised.
+
+### Assessment Breakdown:
+
+-   **Functionality (50%)**: The code must meet requirements and run without errors.
+-   **Clarity and Presentation (50%)**: Includes structure, readability, explanations, and proper display of results.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(glue)
+library(knitr)
+library(dbscan)
+```
+
+## Exercise 01: Text mining
+
+*Using dataset: "Recipe Reviews"*
+
+1.  Clean the `text` column of the reviews: convert to lowercase, remove punctuation, and remove numbers. Tokenize the text and remove standard English "stop words".
+2.  Generate a comparative frequency table: obtain the top 15 most frequent words used in **positive reviews** (`stars` = 5) versus those used in **negative reviews** (`stars` \<= 2).
+3.  Create a "Word Cloud" for the reviews of the recipe that has the highest number of `thumbs_up` in the entire dataset.
+4.  **(Challenge):** Perform a basic sentiment analysis by assigning a sentiment score to each comment using a dictionary (e.g., `bing` or `afinn`). Show if there is a correlation between the sentiment score you calculated and the `stars` given by the user.
+
+```{r, message=FALSE, warning=FALSE}
+rm(list = ls()) #This command is included to avoid confusion with previously declared variables
+```
+
+## Exercise 02: Table Transformations and Time Series
+
+*Using dataset: "retail.csv"*
+
+1.  Ensure `InvoiceDate` has the correct date/time format. Extract the hour of the day (`Hour`) and the day of the week (`Weekday`).
+2.  Pivot the table to obtain a Heatmap (or cross-tabulation) where rows are days of the week, columns are hours of the day (0 to 23), and the cell value is the **total revenue** (`Quantity * UnitPrice`). Interpret: What is the peak sales time?
+3.  Transform the dataset to obtain a summary table per **Customer** (`CustomerID`) containing:
+
+-   **Recency:** Days elapsed since their last purchase to the maximum date in the dataset.
+-   **Frequency:** Number of unique invoices (`InvoiceNo`).
+-   **Monetary:** Total accumulated spending.
+
+```{r, message=FALSE, warning=FALSE}
+rm(list = ls()) 
+```
+
+## Exercise 03: Clustering
+
+*Using the RFM table generated in Block 2 (Retail)*
+
+1.  Normalize the `Recency`, `Frequency`, and `Monetary` variables calculated in the previous exercise.
+2.  Determine the optimal number of clusters using the Elbow Method or Silhouette Coefficient.
+3.  Apply the **K-Means** algorithm with the chosen number of clusters. Add the cluster assignment to the original customer table. 4.**(Challenge):** Profile the obtained clusters: Calculate the centroid (mean of R, F, M) for each group and assign a **commercial label** to each one (e.g., "VIP Customers", "At Risk", "New", etc.). Justify your labeling based on the data.
+
+```{r, message=FALSE, warning=FALSE}
+rm(list = ls()) 
+```
+
+## Exercise 04: Association Rules
+
+*Using dataset: "retail.csv"*
+
+1.  **Transactional Preparation:** Using `retail.csv`, group the data to obtain a transaction structure ("Basket") where each row represents an `InvoiceNo` and contains the list of `Description` (products) purchased. Remove transactions containing only a single item.
+2.  **Rule Generation:** Apply the **Apriori** algorithm. Adjust the *Support* and *Confidence* parameters to obtain a set of between 20 and 100 rules.
+3.  **Filtering:** List the 5 rules with the highest **Lift**. Interpret in your own words what the top rule implies (e.g., "If a customer buys X, they are Y times more likely to buy Z...").
+4.  **(Challenge):** Filter the rules to show only those where the **consequent (RHS)** is a specific high-rotation product (choose a frequent one, e.g., "WHITE HANGING HEART..."). Visualize these relationships using a graph (using `arulesViz` or similar).
+
+```{r, message=FALSE, warning=FALSE}
+rm(list = ls()) 
+```
