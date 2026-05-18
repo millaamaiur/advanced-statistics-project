@@ -57,6 +57,8 @@ library(tidyverse)
 library(glue)
 library(knitr)
 library(dbscan)
+library(FactoMineR)
+library(factoextra)
 ```
 
 ## Exercise 01: Text mining
@@ -85,7 +87,8 @@ rm(list = ls()) #This command is included to avoid confusion with previously dec
 -   **Monetary:** Total accumulated spending.
 
 ```{r, message=FALSE, warning=FALSE}
-rm(list = ls()) 
+rm(list = ls())
+options(scipen = 999)
 
 #1
 data <- read.csv("retail.csv")
@@ -113,8 +116,17 @@ dataWider <- dataRevenue %>%
 
 ggplot(dataRevenue, aes(x = Hour, y = WeekDay, fill = Revenue)) +
   geom_tile()
+
+# We can see peak revenue Thursdays at 10 am
 #3
 
+dataRFM <- data %>%
+  group_by(CustomerID) %>%
+  summarise(
+    Frequency = n_distinct(InvoiceNo),
+    Monetary = sum(Quantity * UnitPrice),
+    Recency = as.numeric(difftime(max(data$InvoiceDate), max(InvoiceDate), units = "days"))
+  )
 
 ```
 
@@ -127,7 +139,52 @@ ggplot(dataRevenue, aes(x = Hour, y = WeekDay, fill = Revenue)) +
 3.  Apply the **K-Means** algorithm with the chosen number of clusters. Add the cluster assignment to the original customer table. 4.**(Challenge):** Profile the obtained clusters: Calculate the centroid (mean of R, F, M) for each group and assign a **commercial label** to each one (e.g., "VIP Customers", "At Risk", "New", etc.). Justify your labeling based on the data.
 
 ```{r, message=FALSE, warning=FALSE}
-rm(list = ls()) 
+
+#1
+
+dataRFMNorm <- scale(dataRFM[,-1])
+
+#2
+
+fviz_nbclust(dataRFMNorm, kmeans, method = "wss", k.max = 20) + 
+  ggtitle("Optimal number of clusters")
+
+#3
+
+k <- 4
+km.out_1 <- kmeans(dataRFMNorm, 
+                   k, 
+                   nstart = 10 # how many initial conditions are created
+)
+
+plot(dataRFMNorm, col = (km.out_1$cluster + 1),
+     main = paste("K-Means Clustering Results (Original) with K = ", k, sep = " "),
+     xlab = "", ylab = "", pch = 20, cex = 2)
+
+dataRFM <- dataRFM %>%
+  mutate(
+    Cluster = km.out_1$cluster
+  )
+
+#4
+
+dataRFM <- dataRFM %>%
+  group_by(Cluster) %>%
+  summarise(
+    Recency = mean(Recency),
+    Frequency = mean(Frequency),
+    Monetary = mean(Monetary)
+  )
+
+dataRFM <- dataRFM %>%
+  mutate(Label = case_when(
+    Cluster == 1 ~ "VIP Customers",
+    Cluster == 2 ~ "At Risk",
+    Cluster == 3 ~ "Loyal Customers",
+    Cluster == 4 ~ "Lost Customers"
+  ))
+
+# Cluster 1 (VIP) shows the lowest recency (4 days) with by far the highest frequency (130 invoices) and monetary value (€132k), indicating highly active and valuable customers. Cluster 4 (Lost) shows the opposite: last purchase was 248 days ago with minimal frequency and spending, suggesting churned customers. Clusters 2 and 3 fall in between, differentiated by recency and engagement level.
 ```
 
 ## Exercise 04: Association Rules
