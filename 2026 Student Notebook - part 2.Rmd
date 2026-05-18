@@ -86,6 +86,36 @@ rm(list = ls()) #This command is included to avoid confusion with previously dec
 
 ```{r, message=FALSE, warning=FALSE}
 rm(list = ls()) 
+
+#1
+data <- read.csv("retail.csv")
+data$InvoiceDate <- ymd_hms(data$InvoiceDate)
+
+data <- data %>%
+  mutate(
+    Hour = hour(InvoiceDate),
+    WeekDay = weekdays(InvoiceDate)
+  )
+
+#2
+
+dataRevenue <- data %>%
+  group_by(WeekDay, Hour) %>%
+  summarise(
+    Revenue = sum(Quantity * UnitPrice)
+  )
+
+dataWider <- dataRevenue %>%
+  pivot_wider(
+    names_from = Hour,
+    values_from = Revenue
+  )
+
+ggplot(dataRevenue, aes(x = Hour, y = WeekDay, fill = Revenue)) +
+  geom_tile()
+#3
+
+
 ```
 
 ## Exercise 03: Clustering
