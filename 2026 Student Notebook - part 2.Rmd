@@ -198,4 +198,32 @@ dataRFM <- dataRFM %>%
 
 ```{r, message=FALSE, warning=FALSE}
 rm(list = ls()) 
+
+#1 Transactional Preparation
+
+data1 <- data %>%
+  #Separate de values by InvoiceNo
+  group_by(InvoiceNo) %>%
+  summarise(
+    #Create the list of products
+      Basket = list(unique(Description))
+    ) %>%
+  #Remove about the condition
+  filter(
+    lengths(Basket) > 1
+  )
+
+#Check if there are some NA values
+sum(is.na(data1))
+
+#Check the structure
+data1[[1]]
+
+#2 Rule Generation
+
+#3 Filtering
+
+#4 Challenge
+
+
 ```
