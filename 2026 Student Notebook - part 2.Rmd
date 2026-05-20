@@ -59,6 +59,7 @@ library(knitr)
 library(dbscan)
 library(FactoMineR)
 library(factoextra)
+library(tidytext) # Package necessary for the stop_words
 ```
 
 ## Exercise 01: Text mining
@@ -70,8 +71,113 @@ library(factoextra)
 3.  Create a "Word Cloud" for the reviews of the recipe that has the highest number of `thumbs_up` in the entire dataset.
 4.  **(Challenge):** Perform a basic sentiment analysis by assigning a sentiment score to each comment using a dictionary (e.g., `bing` or `afinn`). Show if there is a correlation between the sentiment score you calculated and the `stars` given by the user.
 
+### Task 1:
+
 ```{r, message=FALSE, warning=FALSE}
 rm(list = ls()) #This command is included to avoid confusion with previously declared variables
+recipeData <- read.csv("Recipe Reviews and User Feedback Dataset.csv") # Load data
+
+data("stop_words") # Load the stop_words dataset
+
+# Clean the reviews
+reviews <- recipeData %>%
+  mutate(text_clean = tolower(text)) %>%  # Change all the words to lowercase
+  mutate(text_clean = str_replace_all(text_clean, "[[:punct:]]", "")) %>% # Eliminate all the punctuation marks from the text
+  mutate(text_clean = str_replace_all(text_clean, "[[:digit:]]", "")) %>% # Eliminate all the numbers from the text
+  unnest_tokens(word, text_clean) %>% # Tokenize the text to have the words only
+  anti_join(stop_words, by = "word") # Anti join to have only the words that are not on the stop words list
+knitr::kable(head(reviews$word))
+```
+
+#### Task 2
+
+```{r, message=FALSE, warning=FALSE}
+topPos <- reviews %>%
+  filter(stars == 5) %>%
+  group_by(word) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(.,15)
+
+topPos <- recipeData %>%
+  filter(stars == 5) %>%
+  mutate(text = str_replace_all(text, "[[:digit:]]", "")) %>%
+  unnest_tokens(word, text)
+
+freqPos <- topPos %>%
+  group_by(word) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(.,15)
+
+topNeg <- recipeData %>%
+  filter(stars <= 2) %>%
+  mutate(text = str_replace_all(text, "[[:digit:]]", "")) %>%
+  unnest_tokens(word, text)
+
+freqNeg <- topNeg %>%
+  group_by(word) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(.,15)
+
+# Display frequency results for comparison
+frequencyTable <- cbind(freqPos, freqNeg)
+knitr::kable(frequencyTable)
+```
+
+#### Task 3
+
+```{r, message=FALSE, warning=FALSE}
+# Identify the recipes with the highest engagement based on total thumbs up
+topRecipesId <- recipeData %>%
+  group_by(recipe_code) %>%
+  summarise(total_thumbs = sum(thumbs_up)) %>%
+  arrange(desc(total_thumbs))
+
+# Filter words from reviews corresponding only to the top recipe for the word cloud
+wordCloud <- reviews %>%
+  filter(recipe_code == topRecipesId$recipe_code[1]) %>%
+  count(word, sort = TRUE)
+
+set.seed(123) # Seed to have always the same answers
+library(wordcloud)
+wordcloud(
+  words = wordCloud$word, 
+  freq = wordCloud$n, 
+  max.words = 100,               # Shows the 100 most common words
+  random.order = FALSE,          # Leaves the biggest words in the centre
+  colors = brewer.pal(8, "Dark2") # Una paleta de colores limpia y legible
+)
+```
+
+### Challenge:
+
+```{r, message=FALSE, warning=FALSE}
+# get_sentiments("bing") is a dictionary with sentiment words with a category (negative/positive)
+sentimentsBing <- get_sentiments("bing")
+
+# Calculate the net sentiment score for each unique comment
+score_Comments <- reviews %>%
+  inner_join(sentimentsBing, by = "word") %>%
+  mutate(value = ifelse(sentiment=="positive", 1, -1)) %>%
+  group_by(comment_id, stars) %>%
+  summarise(sentiment_score = sum(value), .groups = "drop")
+
+# Compute Pearson correlation coefficient between actual user stars and calculated sentiment score
+correlation <- cor(score_Comments$sentiment_score, score_Comments$stars, method = "pearson")
+
+cat("El coeficiente de correlación de Pearson es:", correlation, "\n")
+
+# Visualize the relationship using boxplots
+ggplot(score_Comments, aes(x = as.factor(stars), y = sentiment_score, fill = as.factor(stars))) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(
+    title = "Relación entre Estrellas del Usuario y Score de Sentimiento",
+    x = "Estrellas (Stars)",
+    y = "Score de Sentimiento Calculado"
+  ) +
+  theme_minimal()
 ```
 
 ## Exercise 02: Table Transformations and Time Series
