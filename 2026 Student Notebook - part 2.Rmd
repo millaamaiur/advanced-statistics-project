@@ -200,26 +200,50 @@ dataRFM <- dataRFM %>%
 rm(list = ls()) 
 
 #1 Transactional Preparation
+library(arules)
 
-data1 <- data %>%
-  #Separate de values by InvoiceNo
-  group_by(InvoiceNo) %>%
-  summarise(
-    #Create the list of products
-      Basket = list(unique(Description))
-    ) %>%
-  #Remove about the condition
-  filter(
-    lengths(Basket) > 1
+data_basket <- data %>%
+  select(InvoiceNo, Description) %>%
+  drop_na(Description) %>%
+  distinct(InvoiceNo, Description) %>%
+  mutate(value = TRUE) %>%
+  pivot_wider(
+    names_from = Description,
+    values_from = value,
+    values_fill = FALSE
   )
 
-#Check if there are some NA values
-sum(is.na(data1))
+transactions <- as(
+  data_basket %>% select(-InvoiceNo),
+  "transactions"
+)
 
-#Check the structure
-data1[[1]]
+transactions <- transactions[size(transactions) > 1]
+
+class(transactions)
+summary(transactions)
+inspect(transactions[1:3])
 
 #2 Rule Generation
+
+#Apply Apriori
+rules <- apriori(
+  transactions,
+  parameter = list(
+    supp = 0.002,
+    conf = 0.3
+  )
+)
+
+#Inspect number of rules
+length(rules)
+
+#View rules
+inspect(rules[1:10])
+
+#If there are too many/few rules:
+#Increase supp/conf -> fewer rules
+#Decrease supp/conf -> more rules
 
 #3 Filtering
 
