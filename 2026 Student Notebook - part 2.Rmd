@@ -199,55 +199,82 @@ dataRFM <- dataRFM %>%
 ```{r, message=FALSE, warning=FALSE}
 rm(list = ls()) 
 
-#1 Transactional Preparation
+##############################
+#1 Transactional Preparation #
+##############################
 library(arules)
 
-data_basket <- data %>%
+data <- read.csv("retail.csv")
+#Change the structure
+data_single <- data %>%
   select(InvoiceNo, Description) %>%
   drop_na(Description) %>%
-  distinct(InvoiceNo, Description) %>%
-  mutate(value = TRUE) %>%
-  pivot_wider(
-    names_from = Description,
-    values_from = value,
-    values_fill = FALSE
-  )
-
-transactions <- as(
-  data_basket %>% select(-InvoiceNo),
-  "transactions"
-)
-
+  distinct(InvoiceNo, Description)
+#Change to transactions format
+transactions <- as(split(data_single$Description, data_single$InvoiceNo), "transactions")
+#Apply condition
 transactions <- transactions[size(transactions) > 1]
 
-class(transactions)
-summary(transactions)
-inspect(transactions[1:3])
+####################
+#2 Rule Generation #
+####################
 
-#2 Rule Generation
-
-#Apply Apriori
-rules <- apriori(
-  transactions,
-  parameter = list(
-    supp = 0.002,
-    conf = 0.3
-  )
-)
-
-#Inspect number of rules
+#Apply Apriori algorithm
+rules <- apriori(transactions, parameter = list(supp = 0.002, conf = 0.3))
 length(rules)
+#Number of rules: 11583161
+
+#If there are too many rules:
+#Increase support/confidence -> fewer rules
+#Decrease support/confidence -> more rules
+
+#If there are too few rules:
+#Decrease support/confidence -> more rules
+#Increase support/confidence -> fewer rules
+
+rules <- apriori(transactions, parameter = list(supp = 0.006, conf = 0.4))
+length(rules)
+#Number of rules: 9742
+
+rules <- apriori(transactions, parameter = list(supp = 0.01, conf = 0.5))
+length(rules)
+#Number of rules: 808
+
+rules <- apriori(transactions, parameter = list(supp = 0.015, conf = 0.6))
+length(rules)
+#Number of rules: 97
+
+rules <- apriori(transactions, parameter = list(supp = 0.016, conf = 0.65))
+length(rules)
+#Number of rules: 56 -> is between 20 and 100, "in the middle"
 
 #View rules
 inspect(rules[1:10])
 
-#If there are too many/few rules:
-#Increase supp/conf -> fewer rules
-#Decrease supp/conf -> more rules
+##############
+#3 Filtering #
+##############
 
-#3 Filtering
+#Variable for the Top5
+Top5_rules <- sort(rules, by = "lift", decreasing = TRUE)[1:5]
+#Show
+inspect(Top5_rules)
 
-#4 Challenge
+#LHS -> First product
+#RHS -> Second product
+#confidence -> buy LHS and then RHS
+#lift -> buy RHS and then LHS
+
+#Interpretation:
+#If a customer buys "REGENCY TEA PLATE GREEN",
+#they are about 36.9 times more likely to also buy
+#"REGENCY TEA PLATE ROSES" compared to a random customer.
+#In addition, around 83.6% of customers who buy the green plate
+#also buy the roses plate.
+
+##############
+#4 Challenge #
+##############
 
 
 ```
