@@ -215,6 +215,11 @@ transactions <- as(split(data_single$Description, data_single$InvoiceNo), "trans
 #Apply condition
 transactions <- transactions[size(transactions) > 1]
 
+#The dataset was transformed into transactions, where each InvoiceNo
+#represents one basket containing the purchased products.
+#Transactions with only one product were removed because association
+#rules require relationships between multiple items.
+
 ####################
 #2 Rule Generation #
 ####################
@@ -251,6 +256,11 @@ length(rules)
 #View rules
 inspect(rules[1:10])
 
+#The Apriori algorithm was applied to discover associations between products.
+#Different support and confidence values were tested to control the number
+#of generated rules. Finally, support = 0.016 and confidence = 0.65
+#generated 56 rules, which satisfies the requested range between 20 and 100 rules.
+
 ##############
 #3 Filtering #
 ##############
@@ -276,5 +286,29 @@ inspect(Top5_rules)
 #4 Challenge #
 ##############
 
+#Load library
+library(arulesViz)
 
+#Check frequent products
+sort(itemFrequency(transactions), decreasing = TRUE)[1:10]
+
+#Filter rules where RHS is WHITE HANGING HEART T-LIGHT HOLDER
+rules_filtered <- subset(
+  rules,
+  rhs %in% "WHITE HANGING HEART T-LIGHT HOLDER"
+)
+
+#Check filtered rule
+inspect(rules_filtered)
+
+#Plot graph
+plot(rules_filtered, method = "graph")
+
+################
+#4 Challenge   #
+################
+
+#The rules were filtered using a specific RHS product.
+#The graph visualization shows the association between the selected product
+#and the products that are commonly purchased together with it.
 ```
