@@ -235,7 +235,10 @@ In conclusion, while the sentiment model successfully establishes a positive bas
 rm(list = ls())
 options(scipen = 999)
 
-#1
+##########
+# TASK 1 #
+##########
+
 data <- read.csv("retail.csv")
 data$InvoiceDate <- ymd_hms(data$InvoiceDate)
 
@@ -245,7 +248,12 @@ data <- data %>%
     WeekDay = weekdays(InvoiceDate)
   )
 
-#2
+```
+
+```{r}
+##########
+# TASK 2 #
+##########
 
 dataRevenue <- data %>%
   group_by(WeekDay, Hour) %>%
@@ -263,7 +271,12 @@ ggplot(dataRevenue, aes(x = Hour, y = WeekDay, fill = Revenue)) +
   geom_tile()
 
 # We can see peak revenue Thursdays at 10 am
-#3
+```
+
+```{r}
+##########
+# TASK 3 #
+##########
 
 dataRFM <- data %>%
   group_by(CustomerID) %>%
@@ -272,8 +285,11 @@ dataRFM <- data %>%
     Monetary = sum(Quantity * UnitPrice),
     Recency = as.numeric(difftime(max(data$InvoiceDate), max(InvoiceDate), units = "days"))
   )
-
 ```
+
+#### Results Analysis:
+
+The heatmap reveals that peak revenue occurs on Thursday around 9–10h, standing out clearly from all other time slots. More broadly, Tuesday through Thursday show consistently high revenue between 9h and 15h. Saturday is entirely absent from the chart, and Sunday shows only minimal activity, confirming the business operates almost exclusively on weekdays. Revenue drops sharply before 8h and after 18h across all days, indicating no relevant demand outside standard working hours.
 
 ## Exercise 03: Clustering
 
@@ -281,20 +297,32 @@ dataRFM <- data %>%
 
 1.  Normalize the `Recency`, `Frequency`, and `Monetary` variables calculated in the previous exercise.
 2.  Determine the optimal number of clusters using the Elbow Method or Silhouette Coefficient.
-3.  Apply the **K-Means** algorithm with the chosen number of clusters. Add the cluster assignment to the original customer table. 4.**(Challenge):** Profile the obtained clusters: Calculate the centroid (mean of R, F, M) for each group and assign a **commercial label** to each one (e.g., "VIP Customers", "At Risk", "New", etc.). Justify your labeling based on the data.
+3.  Apply the **K-Means** algorithm with the chosen number of clusters. Add the cluster assignment to the original customer table. 
+4.**(Challenge):** Profile the obtained clusters: Calculate the centroid (mean of R, F, M) for each group and assign a **commercial label** to each one (e.g., "VIP Customers", "At Risk", "New", etc.). Justify your labeling based on the data.
 
 ```{r, message=FALSE, warning=FALSE}
-
-#1
+##########
+# TASK 1 #
+##########
 
 dataRFMNorm <- scale(dataRFM[,-1])
 
-#2
+```
+
+```{r}
+##########
+# TASK 2 #
+##########
 
 fviz_nbclust(dataRFMNorm, kmeans, method = "wss", k.max = 20) + 
   ggtitle("Optimal number of clusters")
 
-#3
+```
+
+```{r}
+##########
+# TASK 3 #
+##########
 
 k <- 4
 km.out_1 <- kmeans(dataRFMNorm, 
@@ -311,7 +339,12 @@ dataRFM <- dataRFM %>%
     Cluster = km.out_1$cluster
   )
 
-#4
+```
+
+```{r}
+##########
+# TASK 4 #
+##########
 
 dataRFM <- dataRFM %>%
   group_by(Cluster) %>%
