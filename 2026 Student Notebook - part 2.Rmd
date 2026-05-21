@@ -275,7 +275,6 @@ inspect(Top5_rules)
 #confidence -> buy LHS and then RHS
 #lift -> buy RHS and then LHS
 
-#Interpretation:
 #If a customer buys "REGENCY TEA PLATE GREEN",
 #they are about 36.9 times more likely to also buy
 #"REGENCY TEA PLATE ROSES" compared to a random customer.
@@ -303,10 +302,6 @@ inspect(rules_filtered)
 
 #Plot graph
 plot(rules_filtered, method = "graph")
-
-################
-#4 Challenge   #
-################
 
 #The rules were filtered using a specific RHS product.
 #The graph visualization shows the association between the selected product
