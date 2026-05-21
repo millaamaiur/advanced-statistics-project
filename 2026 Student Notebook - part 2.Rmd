@@ -86,45 +86,58 @@ reviews <- recipeData %>%
   mutate(text_clean = str_replace_all(text_clean, "[[:digit:]]", "")) %>% # Eliminate all the numbers from the text
   unnest_tokens(word, text_clean) %>% # Tokenize the text to have the words only
   anti_join(stop_words, by = "word") # Anti join to have only the words that are not on the stop words list
-knitr::kable(head(reviews$word))
+knitr::kable(head(reviews$word, 15))
 ```
+
+#### Results Analysis:
+
+The text preparation and cleaning phase transformed unstructured raw review strings into standardized individual tokens optimized for statistical analysis.
+
+Inspecting the first 15 generated tokens (including tweaked, removed, onions, onion, seasoning, oregano, paprika, cayenne), it can be concluded the following methodological and analytical insights:
+
+* **Filtering Efficiency:** The removal of punctuation marks, numbers, and standard English grammatical stop words (such as the, and, to) worked as intended. This ensures that the final dataset is predominantly populated by culinary nouns (onions, seasoning, oregano, paprika, cayenne) and action-oriented verbs (tweaked, removed, mix), which is the expected vocabulary for the dataset.
+
+* **Recipe Body Dynamics:** The output reflects the behavioral nature of the platform's users. Terms like "tweaked" and "removed" indicate that home cooks frequently modify recipes to fit personal preferences. Furthermore, the high density of spices appearing in the initial preview suggests that the dataset contains heavily seasoned dishes or discussions regarding flavor adjustments.
+
+* **Text Mining Limitations:** The output also shows a few common quirks of basic text cleaning. For instance, because the code doesn't merge variations of the same word, singular and plural forms coexist ("onion" and "onions"), which splits their count. Additionally, a random "x" appears (likely left behind from expressions like "2x" after the numbers were deleted), and general words like "bit" or "called" slip through because standard dictionaries don't know they aren't useful for recipe analysis.
 
 #### Task 2
 
 ```{r, message=FALSE, warning=FALSE}
+# Using the variable 'reviews' that is clean and tokenized
+
 topPos <- reviews %>%
-  filter(stars == 5) %>%
-  group_by(word) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n)) %>%
+  filter(stars == 5) %>% # Select only 5 star reviews
+  group_by(word) %>% # Group by word to have the amount of words
+  summarise(occurrences = n()) %>% # Count the amount of occurrences for each word
+  arrange(desc(occurrences)) %>% # Arrange them by the decreasing order of the total number of words
   head(.,15)
 
-topPos <- recipeData %>%
-  filter(stars == 5) %>%
-  mutate(text = str_replace_all(text, "[[:digit:]]", "")) %>%
-  unnest_tokens(word, text)
-
-freqPos <- topPos %>%
-  group_by(word) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n)) %>%
-  head(.,15)
-
-topNeg <- recipeData %>%
-  filter(stars <= 2) %>%
-  mutate(text = str_replace_all(text, "[[:digit:]]", "")) %>%
-  unnest_tokens(word, text)
-
-freqNeg <- topNeg %>%
-  group_by(word) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n)) %>%
+topNeg <- reviews %>% 
+  filter(stars <= 2) %>% # Select only 2 star or lower reviews
+  group_by(word) %>% # Group by word to have the amount of words
+  summarise(occurrences = n()) %>% # Count the amount of occurrences for each word
+  arrange(desc(occurrences)) %>% # Arrange them by the decreasing order of the total number of words
   head(.,15)
 
 # Display frequency results for comparison
-frequencyTable <- cbind(freqPos, freqNeg)
+frequencyTable <- cbind(topPos, topNeg)
 knitr::kable(frequencyTable)
 ```
+
+#### Results Analysis:
+
+The comparative table displays the top 15 most frequent words used in positive reviews (5 stars) versus negative reviews (<= 2 stars). Comparing these two lists reveals some very interesting insights about how users leave feedback:
+
+* **Massive Volume Difference:** The first thing that stands out is the sheer scale of occurrences. The top words in positive reviews appear thousands of times (e.g., "recipe" has 7,757 hits), while the top words in negative reviews barely touch a few hundred (e.g., "recipe" has 997 hits). This tells us that the dataset contains a much larger number of satisfied users leaving 5-star reviews than unhappy ones.
+
+* **Shared Vocabulary (The Context):** Interestingly, both positive and negative reviews share a lot of the same core words, such as "recipe", "cake", "time", "added", "family", and ingredients like "cheese" and "bread". This makes sense because no matter if a cook loves or hates a dish, they are still talking about the same activity: baking a cake or making dinner for their family.
+
+* **The Subtle Differences in Tone:** Even though the lists look similar, the subtle changes tell the real story. In the positive column, enthusiastic words like "delicious" (2,724 hits) and "loved/love" score very high. In contrast, the negative column includes words like "sugar", "flour", and "taste". This suggests that when reviews are bad, users tend to focus less on compliments and more on specific ingredients or complaining about how the final dish actually tasted.
+
+* **Positive Words in Negative Reviews:** It might seem strange that "love" and "delicious" appear in the negative column. This could happen because of negations (like "I did not love it") or mixed feedback (like "It smelled delicious, but tasted awful"). Since the code only counts single words, it misses the negative context.
+
+In short, while the general topics of conversation remain the same across all ratings, positive reviews are much more vocal and loaded with emotional praise, whereas negative reviews lean toward breaking down what went wrong with the food.
 
 #### Task 3
 
@@ -151,6 +164,16 @@ wordcloud(
 )
 ```
 
+#### Results Analysis:
+
+The word cloud visualizes the 100 most frequent words from the reviews of the single recipe with the highest user engagement (measured by the total sum of thumbs_up). This visual representation allows us to reverse-engineer the identity and reception of the dish:
+
+* **Identifying the Recipe:** Even without looking at the official recipe name, the core ingredients and keywords tell us exactly what this dish is. The prominent size of words like "breakfast", "bacon", "sausage", "cheese", "eggs", and "casserole" reveals that the top recipe in the dataset is a savory breakfast or brunch bake. Other supporting ingredients like "potatoes", "ham", and "swiss" (cheese) help map out the exact profile of the meal.
+
+* **Context of Consumption:** The cloud highlights when and how people enjoy this dish. Words like "morning", "brunch", "christmas", "overnight", and "guests" pop up frequently. This indicates that users often prepare this specific casserole for special family gatherings, holiday mornings, or when hosting company, making it a reliable crowd-pleaser.
+
+* **Overwhelmingly Positive Sentiment:** The overall feedback embedded in the cloud is highly enthusiastic. Terms such as "delicious", "loved", "easy", "perfect", and "wonderful" are centrally placed and quite large. This confirms that its high engagement status is driven by genuine popularity and success among home cooks, rather than controversial or bad reviews.
+
 ### Challenge:
 
 ```{r, message=FALSE, warning=FALSE}
@@ -167,18 +190,34 @@ score_Comments <- reviews %>%
 # Compute Pearson correlation coefficient between actual user stars and calculated sentiment score
 correlation <- cor(score_Comments$sentiment_score, score_Comments$stars, method = "pearson")
 
-cat("El coeficiente de correlación de Pearson es:", correlation, "\n")
+cat("Pearson's correlation coeficient:", correlation, "\n")
 
 # Visualize the relationship using boxplots
 ggplot(score_Comments, aes(x = as.factor(stars), y = sentiment_score, fill = as.factor(stars))) +
   geom_boxplot(show.legend = FALSE) +
   labs(
-    title = "Relación entre Estrellas del Usuario y Score de Sentimiento",
-    x = "Estrellas (Stars)",
-    y = "Score de Sentimiento Calculado"
+    title = "Relation Between Stars and the Sentiment Score",
+    x = "Stars",
+    y = "Sentiment Score"
   ) +
   theme_minimal()
 ```
+
+#### Results Analysis:
+
+This section shows the relationship between the computed sentiment_score (using the Bing dictionary) and the explicit stars given by the users. The relationship has a Pearson correlation coefficient of 0.1849, which indicates a weak positive linear correlation.
+
+While a higher star rating does move the sentiment score in a positive direction, the correlation is much lower than one might intuitively expect. Analyzing the boxplot reveals the core reasons behind this weak statistical relationship:
+
+* **General Upward Trend:** Looking at the medians (the thick black lines inside the boxes) from 1 star to 5 stars, there is a clear, gradual upward steps. One-star reviews have a negative median score (around -1), while five-star reviews settle into positive territory. This proves that the dictionary is capturing the basic emotional signal correctly.
+
+* **The Zero-Star Anomaly:** Interestingly, reviews marked with "0" stars show a positive median score close to 1. This suggests that these entries might represent unrated reviews rather than genuinely terrible feedback, skewing the overall linear calculation.
+
+* **High Variance and Outliers:** The most striking feature of the plot is the massive spread of data and the heavy presence of outliers (the black dots), especially in the 4 and 5-star categories. For instance, in the 5-star column, there are multiple reviews with computed sentiment scores dropping as low as -5 to -9.
+
+* **Methodological Limitations:** This heavy variance highlights why simple, word-by-word (unigram) sentiment analysis struggles in real-world contexts. A user might write a 5-star review saying: "There is no way this recipe could be bad, it saved me from a total kitchen disaster." A basic dictionary counts the negative words "no", "bad", and "disaster", giving a deeply negative score for a highly enthusiastic review. It completely misses context, intensifiers, and double negatives.
+
+In conclusion, while the sentiment model successfully establishes a positive baseline trend that aligns with user ratings, a Pearson coefficient of 0.1849 shows that counting isolated words provides an incomplete picture. Human emotion, sarcasm, and complex sentences introduce a high level of noise that simple dictionary matching cannot fully filter out.
 
 ## Exercise 02: Table Transformations and Time Series
 
