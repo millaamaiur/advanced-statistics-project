@@ -392,12 +392,11 @@ data_single <- data %>%
 transactions <- as(split(data_single$Description, data_single$InvoiceNo), "transactions")
 #Apply condition
 transactions <- transactions[size(transactions) > 1]
+```
 
-#The dataset was transformed into transactions, where each InvoiceNo
-#represents one basket containing the purchased products.
-#Transactions with only one product were removed because association
-#rules require relationships between multiple items.
+The dataset was transformed into transactions, where each InvoiceNo represents one basket containing the purchased products. Transactions with only one product were removed because association rules require relationships between multiple items.
 
+```{r}
 ####################
 #2 Rule Generation #
 ####################
@@ -433,12 +432,11 @@ length(rules)
 
 #View rules
 inspect(rules[1:10])
+```
 
-#The Apriori algorithm was applied to discover associations between products.
-#Different support and confidence values were tested to control the number
-#of generated rules. Finally, support = 0.016 and confidence = 0.65
-#generated 56 rules, which satisfies the requested range between 20 and 100 rules.
+The Apriori algorithm was applied to discover associations between products. Different support and confidence values were tested to control the number of generated rules. Finally, support = 0.016 and confidence = 0.65 generated 56 rules, which satisfies the requested range between 20 and 100 rules.
 
+```{r}
 ##############
 #3 Filtering #
 ##############
@@ -452,13 +450,11 @@ inspect(Top5_rules)
 #RHS -> Second product
 #confidence -> buy LHS and then RHS
 #lift -> buy RHS and then LHS
+```
 
-#If a customer buys "REGENCY TEA PLATE GREEN",
-#they are about 36.9 times more likely to also buy
-#"REGENCY TEA PLATE ROSES" compared to a random customer.
-#In addition, around 83.6% of customers who buy the green plate
-#also buy the roses plate.
+If a customer buys "REGENCY TEA PLATE GREEN", they are about 36.9 times more likely to also buy "REGENCY TEA PLATE ROSES" compared to a random customer. In addition, around 83.6% of customers who buy the green plate also buy the roses plate.
 
+```{r}
 ##############
 #4 Challenge #
 ##############
@@ -480,8 +476,6 @@ inspect(rules_filtered)
 
 #Plot graph
 plot(rules_filtered, method = "graph")
-
-#The rules were filtered using a specific RHS product.
-#The graph visualization shows the association between the selected product
-#and the products that are commonly purchased together with it.
 ```
+
+The rules were filtered using a specific RHS product. The graph visualization shows the association between the selected product and the products that are commonly purchased together with it.
